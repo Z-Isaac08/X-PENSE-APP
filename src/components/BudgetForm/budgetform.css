@@ -1,0 +1,77 @@
+/* Styles par défaut */
+.form-wrapper {
+    padding: 35px;
+    padding-left: 55px;
+    padding-right: 55px;
+    position: relative;
+    margin-top: 35px;
+    border-radius: 4px;
+    width: fit-content;
+    border: 1.9px dashed #1e1e1ea1;
+}
+
+.budget, .expense {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+}
+
+.for-input {
+    outline: none;
+    background-color: transparent;
+    padding: 8px;
+    width: 550px;
+    height: 45px;
+    font-size: 18px;
+    border: 1.8px solid #1e1e1e74;
+    transition: border-color 0.2s ease-out;
+    border-radius: 4px;
+}
+
+.for-input:focus {
+    border-color: hsl(218, 72%, 53%);
+}
+
+/* Styles pour les petits écrans */
+@media (max-width: 768px) {
+    .form-wrapper {
+        padding: 20px;
+        padding-left: 30px;
+        padding-right: 30px;
+        margin-top: 20px;
+        width: 100%;
+        border: 1.5px dashed #1e1e1ea1;
+    }
+
+    .for-input {
+        width: 100%;
+        height: 40px;
+        font-size: 16px;
+    }
+
+    .budget, .expense {
+        gap: 20px;
+    }
+}
+
+/* Styles pour les très petits écrans */
+@media (max-width: 480px) {
+    .form-wrapper {
+        padding: 15px;
+        padding-left: 20px;
+        padding-right: 20px;
+        margin-top: 15px;
+        width: 100%;
+        border: 1.2px dashed #1e1e1ea1;
+    }
+
+    .for-input {
+        width: 100%;
+        height: 35px;
+        font-size: 14px;
+    }
+
+    .budget, .expense {
+        gap: 15px;
+    }
+}

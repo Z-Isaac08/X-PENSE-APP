@@ -1,0 +1,93 @@
+/* Styles par défaut */
+.nav {
+    display: flex;
+    padding: 40px;
+    color: hsl(0, 0%, 12%);
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+}
+
+.name-logo {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    gap: 12px;
+}
+
+.for-sup {
+    color: hsl(0, 76%, 54%);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    width: fit-content;
+    border: 1px solid #e33131;
+    background-color: #e331311a;
+    padding: 15px;
+    font-size: 16px;
+    border-radius: 4px;
+}
+
+.for-sup .text {
+    color: hsl(0, 76%, 54%);
+    font-weight: 200;
+}
+
+.nav .logo {
+    height: 32px;
+}
+
+.nav span {
+    color: hsl(218, 72%, 53%);
+    font-weight: 700;
+}
+
+.nav .name-app {
+    font-size: 30px;
+    color: hsl(0, 0%, 12%);
+}
+
+/* Styles pour les petits écrans */
+@media (max-width: 768px) {
+    .nav {
+        flex-direction: column;
+        padding: 20px;
+    }
+
+    .name-logo {
+        margin-bottom: 10px;
+    }
+
+    .for-sup {
+        padding: 10px;
+        font-size: 14px;
+    }
+
+    .nav .name-app {
+        font-size: 24px;
+        margin-left: 0;
+        text-align: center;
+    }
+
+    .nav .logo {
+        height: 24px;
+    }
+}
+
+/* Styles pour les très petits écrans */
+@media (max-width: 480px) {
+    .nav {
+        padding: 10px;
+    }
+
+    .for-sup {
+        padding: 8px;
+        font-size: 12px;
+        gap: 8px;
+    }
+
+    .nav .name-app {
+        font-size: 20px;
+    }
+}

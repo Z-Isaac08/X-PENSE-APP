@@ -1,0 +1,52 @@
+/* Styles par défaut */
+.budget-page {
+    padding: 35px;
+    padding-left: 65px;
+    color: hsl(0, 0%, 12%);
+    height: 100vh;
+}
+
+.all-budget {
+    display: flex;
+    align-items: center;
+}
+
+.budget-box {
+    width: 100%;
+}
+
+/* Styles pour les petits écrans */
+@media (max-width: 768px) {
+    .budget-page {
+        padding: 20px;
+        padding-left: 30px;
+        height: auto; /* Ajuste la hauteur */
+    }
+
+    .all-budget {
+        flex-direction: column; /* Change la direction en colonne pour les petits écrans */
+    }
+
+    .budget-box {
+        width: 100%; /* Assure que la boîte de budget prend toute la largeur */
+        margin-bottom: 20px; /* Ajoute un espace entre les boîtes de budget */
+    }
+}
+
+/* Styles pour les très petits écrans */
+@media (max-width: 480px) {
+    .budget-page {
+        padding: 15px;
+        padding-left: 20px;
+        height: auto; /* Ajuste la hauteur */
+    }
+
+    .all-budget {
+        align-items: flex-start; /* Aligne les éléments au début pour les très petits écrans */
+    }
+
+    .budget-box {
+        width: 100%;
+        margin-bottom: 15px; /* Ajuste l'espace entre les boîtes de budget */
+    }
+}
