@@ -3,7 +3,7 @@
     padding: 35px;
     padding-left: 65px;
     color: hsl(0, 0%, 12%);
-    height: 100vh;
+    height: fit-content;
 }
 
 .h1-text {
