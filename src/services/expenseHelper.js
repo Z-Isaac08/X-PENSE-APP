@@ -88,7 +88,6 @@ const deleteAllExpenses = async (userId) => {
             batch.delete(doc.ref);
         });
         await batch.commit();
-        console.log('Tous les Expenses ont été supprimés');
     } catch (error) {
         console.error('Erreur lors de la suppression des Expenses:', error);
         throw error;
@@ -100,7 +99,6 @@ const deleteExpense = async (userId, expenseId) => {
     try {
         const ExpenseRef = doc(db, 'users', userId, 'expenses', expenseId);
         await deleteDoc(ExpenseRef);
-        console.log('Expense supprimé avec succès');
     } catch (error) {
         console.error('Erreur lors de la suppression du Expense:', error);
         throw error;

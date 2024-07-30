@@ -70,7 +70,6 @@ const deleteAllBudgets = async (userId) => {
             batch.delete(doc.ref);
         });
         await batch.commit();
-        console.log('Tous les budgets ont été supprimés');
     } catch (error) {
         console.error('Erreur lors de la suppression des budgets:', error);
         throw error;
@@ -82,7 +81,6 @@ const deleteBudget = async (userId, budgetId) => {
     try {
         const budgetRef = doc(db, 'users', userId, 'budgets', budgetId);
         await deleteDoc(budgetRef);
-        console.log('Budget supprimé avec succès');
     } catch (error) {
         console.error('Erreur lors de la suppression du budget:', error);
         throw error;

@@ -20,7 +20,6 @@ const Register = () => {
 
         try {
             const userId = await addUser(name);
-            console.log(userId);
             toast.success(`Bienvenue ${name}`);
             navigate(`/h/${userId}`)
         } catch (error) {
