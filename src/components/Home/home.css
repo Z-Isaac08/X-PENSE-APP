@@ -1,9 +1,10 @@
 /* Styles par défaut */
 .home {
     padding: 35px;
+    padding-bottom: 15px;
     padding-left: 65px;
     color: hsl(0, 0%, 12%);
-    height: fit-content;
+    height: 100%;
 }
 
 .h1-text {

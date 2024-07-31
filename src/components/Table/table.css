@@ -77,8 +77,8 @@
     }
 
     .expense-table td {
-        text-align: right;
-        padding-left: 50%;
+        text-align: left;
+        padding-right: 50%;
         position: relative;
     }
 
