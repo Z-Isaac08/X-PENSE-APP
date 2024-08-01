@@ -63,7 +63,7 @@ const Home = () => {
                                             <h3 className='h3-text'>{budget.name}</h3>
                                             <p className='p-text'>{budget.amount} FCFA</p>
                                         </div>
-                                        <Progressbar spent={(budget.spent / budget.amount) * 100} />
+                                        <Progressbar zspent={(budget.spent / budget.amount) * 100} />
                                         <div className="prog-text">
                                             <p className='p-small'>{budget.spent} dépensé</p>
                                             <p className='p-small'>{budget.amount - budget.spent} FCFA restant</p>

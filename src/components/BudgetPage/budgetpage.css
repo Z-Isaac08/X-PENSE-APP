@@ -1,9 +1,10 @@
 /* Styles par défaut */
 .budget-page {
     padding: 35px;
+    padding-bottom: 15px;
     padding-left: 65px;
     color: hsl(0, 0%, 12%);
-    height: 100vh;
+    height: 100%;
 }
 
 .all-budget {
