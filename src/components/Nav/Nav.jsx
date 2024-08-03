@@ -44,7 +44,7 @@ const Nav = () => {
                     </div>
                     <button className='for-sup' onClick={handleDelete}>
                         <FontAwesomeIcon icon={faTrash} />
-                        <span className="text">Suprimer cet compte</span>
+                        <span className="text">Supprimer ce compte</span>
                     </button>
                 </>
             }
