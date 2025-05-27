@@ -1,50 +1,47 @@
 import { Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Navigate, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
-import { deleteBudget, getBudgetsbyID } from "../services/budgetHelper";
-import {
-  getExpenseBudget,
-  getExpensesByBudget,
-} from "../services/expenseHelper";
+import { useExpenseStore } from "../stores/expenseStore";
+import { useUserStore } from "../stores/userStore";
+import { useBudgetStore } from "../stores/budgetStore";
 
 const BudgetPage = () => {
-  const { userID, budgetID } = useParams();
-  const [expenses, setExpenses] = useState([]);
-  const [budget, setBudget] = useState(null);
-  const [spent, setSpent] = useState(0);
+  const { budgetID } = useParams();
+  const { expenses, getAllExpenses, getExpenseBudget } = useExpenseStore();
+  const { getAllBudgets, getBudgetById, deleteBudget } = useBudgetStore();
+  const { user } = useUserStore();
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
 
+  
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        await getAllBudgets(user!.id);
+        await getAllExpenses(user!.id);
+      } catch (error) {
+        console.error("Erreur:", error);
+      }
+    };
+    fetchData();
+  }, [getAllBudgets, getAllExpenses, user]);
+  
+  const budget = getBudgetById(budgetID);
+  const spent = getExpenseBudget(budgetID);
+  
   if (!user) {
     return <Navigate to="/" />;
   }
-
-  const fetchExpenses = async () => {
-    try {
-      const expensesData = await getExpensesByBudget(user.id, budgetID);
-      const budgetData = await getBudgetsbyID(user.id, budgetID);
-      const spent = await getExpenseBudget(user.id, budgetID);
-      setExpenses(expensesData);
-      setBudget(budgetData);
-      setSpent(spent);
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
-
-  useEffect(() => {
-    fetchExpenses();
-  }, [user.id, budgetID]);
-
   const handleDelete = async () => {
     try {
+      if (!budgetID) return;
       await deleteBudget(user.id, budgetID);
       toast.success("Catégorie supprimée");
-      navigate(`/h/${user.id}`);
+      navigate(`/h`);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Échec lors de la suppression");
     }
@@ -68,7 +65,7 @@ const BudgetPage = () => {
           </div>
           <Progressbar spent={(spent / budget.amount) * 100} />
           <div className="flex justify-between text-sm mt-4">
-            <p>{spent} dépensé</p>
+            <p>{spent} FCFA dépensé</p>
             <p>{budget.amount - spent} FCFA restant</p>
           </div>
           <button
@@ -80,12 +77,12 @@ const BudgetPage = () => {
           </button>
         </div>
 
-        <ExpenseForm budgets={[budget]} onExpense={fetchExpenses} />
+        <ExpenseForm budget={budget} />
       </div>
 
       <div className="p-6">
         <h2 className="text-2xl font-semibold mb-4">Dépenses récentes</h2>
-        <Table expenses={expenses} onTable={fetchExpenses} />
+        <Table expenses={expenses.filter((e) => e.budget === budgetID)} />
       </div>
     </main>
   );

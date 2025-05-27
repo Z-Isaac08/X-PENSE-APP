@@ -3,13 +3,14 @@ import { useState } from "react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Illustration from "../assets/illustration.svg";
-import { addUser } from "../services/userHelper";
+import { useUserStore } from "../stores/userStore";
 
 const RegisterPage = () => {
+  const { addUser } = useUserStore();
   const [name, setName] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (name.trim() === "") {
       toast.error("Veuillez entrer votre nom.");
@@ -17,9 +18,9 @@ const RegisterPage = () => {
     }
 
     try {
-      const userId = await addUser(name);
+      await addUser(name);
       toast.success(`Bienvenue ${name}`);
-      navigate(`/h/${userId}`);
+      navigate(`/h`);
     } catch (error) {
       console.error("Error adding user:", error);
     }

@@ -1,41 +1,36 @@
 import { Trash } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Logo from "../../assets/logo.svg";
-import { deleteUser } from "../../services/userHelper";
+import { useUserStore } from "../../stores/userStore";
 
 const NavBar = () => {
-  const [user, setUser] = useState(null);
-  useEffect(() => {
-    const storedUser = JSON.parse(localStorage.getItem("user"));
-    setUser(storedUser);
-  }, []);
+  const { user, deleteUser } = useUserStore();
+  const navigate = useNavigate();
 
   const handleDelete = async () => {
     try {
-      await deleteUser(user.id);
+      await deleteUser();
       toast.success("Compte supprimé avec succès");
-      window.location.href = "/";
+      navigate("/"); 
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleSubmit = async () => {
-    window.location.href = `/h/${user.id}`;
+  const handleSubmit = () => {
+    navigate("/h");
   };
 
   return (
     <nav className="w-full md:p-10 gap-5 flex-col flex md:flex-row p-5 sm:p-2 text-[hsl(0, 0%, 12%)] items-center justify-between">
       {!user ? (
-        <>
-          <div className="flex items-center cursor-pointer gap-3">
-            <img src={Logo} className="md:h-8 h-6" />
-            <p className="md:text-3xl text-xl">
-              <span className="text-[#3170dd] font-bold">X</span>pense
-            </p>
-          </div>
-        </>
+        <div className="flex items-center cursor-pointer gap-3">
+          <img src={Logo} className="md:h-8 h-6" />
+          <p className="md:text-3xl text-xl">
+            <span className="text-[#3170dd] font-bold">X</span>pense
+          </p>
+        </div>
       ) : (
         <>
           <div

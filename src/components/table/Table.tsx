@@ -1,15 +1,19 @@
 import { Trash } from "lucide-react";
 import { toast } from "react-toastify";
-import { deleteExpense } from "../../services/expenseHelper";
+import { useExpenseStore, type ExpenseInterface } from "../../stores/expenseStore";
+import { useUserStore } from "../../stores/userStore";
+import { useBudgetStore } from "../../stores/budgetStore";
 
-const Table = ({ expenses, onTable }) => {
-  const user = JSON.parse(localStorage.getItem("user"));
+const Table = ({ expenses }: {expenses: ExpenseInterface[]}) => {
+  const { deleteExpense } = useExpenseStore();
+  const { getBudgetById } = useBudgetStore();
+  const { user } = useUserStore();
 
-  const handleDelete = async (id) => {
+  const handleDelete = async (id: string) => {
     try {
-      await deleteExpense(user.id, id);
+      await deleteExpense(user!.id, id);
       toast.success("Dépense supprimée");
-      if (onTable) onTable();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Échec lors de la suppression");
     }
@@ -35,7 +39,7 @@ const Table = ({ expenses, onTable }) => {
             >
               <td className="px-4 py-2">{expense.name}</td>
               <td className="px-4 py-2">{expense.amount}</td>
-              <td className="px-4 py-2">{expense.budget}</td>
+              <td className="px-4 py-2">{getBudgetById(expense.budget)?.name}</td>
               <td className="px-4 py-2">{expense.date}</td>
               <td className="px-4 py-2 text-center">
                 <button

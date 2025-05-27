@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const Progressbar = ({ spent }) => {
+const Progressbar = ({ spent }: {spent: number}) => {
   const [width, setWidth] = useState(0);
 
   useEffect(() => {

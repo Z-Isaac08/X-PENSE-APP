@@ -1,60 +1,56 @@
 import { Info } from "lucide-react";
-import { useEffect, useState } from "react";
-import { Navigate, useNavigate, useParams } from "react-router";
-import BudgetForm from "../components/BudgetForm/budgetForm";
+import { useEffect } from "react";
+import { Navigate, useNavigate } from "react-router";
+import BudgetForm from "../components/budgetForm/BudgetForm";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
-import { getAllBudgets } from "../services/budgetHelper";
-import { getAllExpenses, getBudgetExpenses } from "../services/expenseHelper";
+import { useBudgetStore } from "../stores/budgetStore";
+import { useExpenseStore } from "../stores/expenseStore";
+import { useUserStore } from "../stores/userStore";
 
 const HomePage = () => {
-  const { userId } = useParams();
-  const [budgets, setBudgets] = useState([]);
-  const [expenses, setExpenses] = useState([]);
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { budgets, getAllBudgets } = useBudgetStore();
+  const { expenses, getAllExpenses, getExpenseBudget } = useExpenseStore();
+  const { user } = useUserStore();
   const navigate = useNavigate();
 
-  const fetchBudgets = async () => {
-    if (!userId) return;
-
-    try {
-      await getAllBudgets(userId);
-      const expensesData = await getAllExpenses(userId);
-      const budgetsWithExpenses = await getBudgetExpenses(userId);
-      setBudgets(budgetsWithExpenses);
-      setExpenses(expensesData);
-    } catch (error) {
-      console.error("Erreur:", error);
-    }
-  };
-
-  const HandleBudget = (id) => {
-    navigate(`/h/${userId}/budgets/${id}`);
-  };
-
   useEffect(() => {
-    fetchBudgets();
-  }, [userId]);
+    const fetchDatas = async () => {
+      if (!user) return;
 
-  if (!user || user.id !== userId) {
+      try {
+        getAllBudgets(user.id);
+        getAllExpenses(user.id);
+      } catch (error) {
+        console.error("Erreur:", error);
+      }
+    };
+    fetchDatas();
+  }, [getAllBudgets, getAllExpenses, user]);
+
+  const HandleBudget = (id: string) => {
+    navigate(`/h/budgets/${id}`);
+  };
+
+  if (!user) {
     return <Navigate to="/" />;
   }
 
   return (
-    <main className="min-h-screen px-6 py-8 text-neutral-900 md:px-16">
+    <main className="min-h-screen px-6 py-8 text-[#1f1f1f] md:px-16">
       <h1 className="text-4xl md:text-6xl font-bold mb-8">
-        Bienvenue, <span className="text-blue-600">{user.name} !</span>
+        Bienvenue, <span className="text-[#3170dd]">{user.name} !</span>
       </h1>
       {budgets.length === 0 ? (
         <div className="w-auto h-auto">
-          <BudgetForm onBudget={fetchBudgets} />
+          <BudgetForm />
         </div>
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <BudgetForm onBudget={fetchBudgets} />
-            <ExpenseForm budgets={budgets} onExpense={fetchBudgets} />
+            <BudgetForm />
+            <ExpenseForm budget={null} />
             {/* Ton futur troisième élément ici */}
             <div className="bg-neutral-100 p-4 rounded-lg">
               Troisième élément (placeholder)
@@ -71,23 +67,25 @@ const HomePage = () => {
                   key={budget.id}
                   className={`rounded-lg p-6 border ${
                     index % 2 === 0
-                      ? "border-neutral-900 text-neutral-900"
-                      : "border-blue-600 text-blue-600"
+                      ? "border-[#1f1f1f] text-[#1f1f1f]"
+                      : "border-blue-600 text-[#3170dd]"
                   } flex flex-col gap-4`}
                 >
                   <div className="flex justify-between text-lg font-semibold">
                     <h3>{budget.name}</h3>
                     <p>{budget.amount} FCFA</p>
                   </div>
-                  <Progressbar spent={(budget.spent / budget.amount) * 100} />
+                  <Progressbar
+                    spent={(getExpenseBudget(budget.id) / budget.amount) * 100}
+                  />
                   <div className="flex justify-between text-sm">
-                    <p>{budget.spent} dépensé</p>
-                    <p>{budget.amount - budget.spent} restant</p>
+                    <p>{getExpenseBudget(budget.id)} dépensé</p>
+                    <p>{budget.amount - getExpenseBudget(budget.id)} restant</p>
                   </div>
                   <button
                     onClick={() => HandleBudget(budget.id)}
-                    className={`mt-2 flex items-center justify-center gap-2 rounded px-4 py-2 text-white ${
-                      index % 2 === 0 ? "bg-neutral-900" : "bg-blue-600"
+                    className={`mt-2 flex items-center justify-center cursor-pointer gap-2 rounded px-4 py-2 text-white ${
+                      index % 2 === 0 ? "bg-[#1f1f1f]" : "bg-[#3170dd]"
                     } hover:opacity-90`}
                   >
                     <Info size={18} />
@@ -103,7 +101,7 @@ const HomePage = () => {
               Dépenses récentes
             </h2>
             <div>
-              <Table expenses={expenses} onTable={fetchBudgets} />
+              <Table expenses={expenses} />
             </div>
           </div>
         </>

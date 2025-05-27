@@ -3,13 +3,14 @@ import { Navigate, Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import Layout from "./components/layout/Layout";
+import { useUserStore } from "./stores/userStore";
 
 const BudgetPage = lazy(() => import("./pages/BudgetPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 
 const App = () => {
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { user } = useUserStore();
 
   return (
     <>
@@ -25,12 +26,12 @@ const App = () => {
             <Route
               path="/"
               element={
-                user ? <Navigate to={`/h/${user.id}`} /> : <RegisterPage />
+                user ? <Navigate to={`/h`} /> : <RegisterPage />
               }
             />
-            <Route path="/h/:userId" element={<HomePage />} />
+            <Route path="/h/" element={<HomePage />} />
             <Route
-              path="/h/:userId/budgets/:budgetID"
+              path="/h/budgets/:budgetID"
               element={<BudgetPage />}
             />
           </Routes>

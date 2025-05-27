@@ -1,13 +1,15 @@
 import { CirclePlus } from "lucide-react";
 import { useState } from "react";
 import { toast } from "react-toastify";
-import { addBudget, verifyBudgetName } from "../../services/budgetHelper";
+import { useBudgetStore } from "../../stores/budgetStore";
+import { useUserStore } from "../../stores/userStore";
 
-const BudgetForm = ({ onBudget }) => {
+const BudgetForm = () => {
   const [newBudget, setNewBudget] = useState({ name: "", amount: "" });
-  const user = JSON.parse(localStorage.getItem("user"));
+  const { verifyBudgetName, addBudget } = useBudgetStore();
+  const { user } = useUserStore();
 
-  const handleSubmit = async (e) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
     if (newBudget.name.trim() === "" || newBudget.amount.trim() === "") {
@@ -16,7 +18,7 @@ const BudgetForm = ({ onBudget }) => {
     }
 
     try {
-      const names = await verifyBudgetName(user.id);
+      const names = verifyBudgetName();
 
       if (names.includes(newBudget.name)) {
         toast.error("Catégorie existante");
@@ -28,9 +30,10 @@ const BudgetForm = ({ onBudget }) => {
         amount: parseFloat(newBudget.amount),
       };
 
-      await addBudget(user.id, budget);
+      await addBudget(user!.id, budget);
       toast.success("Catégorie ajoutée avec succès !");
-      if (onBudget) onBudget();
+      setNewBudget({ name: "", amount: "" });
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Erreur lors de l'ajout du budget.");
     }
@@ -42,7 +45,7 @@ const BudgetForm = ({ onBudget }) => {
         className="flex flex-col h-full justify-between gap-5"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-xl font-semibold text-neutral-900">
+        <h2 className="text-xl font-semibold text-[#1f1f1f]">
           Nouvelle catégorie
         </h2>
 
@@ -68,7 +71,7 @@ const BudgetForm = ({ onBudget }) => {
 
         <button
           type="submit"
-          className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1f1f1f] hover:opacity-90 text-white rounded transition-colors"
+          className="flex items-center justify-center gap-2 px-4 py-3 bg-[#1f1f1f] hover:opacity-90 text-white cursor-pointer rounded transition-colors"
         >
           <CirclePlus size={20} />
           <span>Créer catégorie</span>
