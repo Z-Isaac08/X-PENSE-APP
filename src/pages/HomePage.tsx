@@ -3,15 +3,18 @@ import { useEffect } from "react";
 import { Navigate, useNavigate } from "react-router";
 import BudgetForm from "../components/budgetForm/BudgetForm";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
+import IncomeForm from "../components/incomeForm/incomeForm";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
 import { useBudgetStore } from "../stores/budgetStore";
 import { useExpenseStore } from "../stores/expenseStore";
+import { useIncomeStore } from "../stores/incomeStore";
 import { useUserStore } from "../stores/userStore";
 
 const HomePage = () => {
   const { budgets, getAllBudgets } = useBudgetStore();
   const { expenses, getAllExpenses, getExpenseBudget } = useExpenseStore();
+  const { incomes, getAllIncomes, getIncomeBudget } = useIncomeStore();
   const { user } = useUserStore();
   const navigate = useNavigate();
 
@@ -22,12 +25,13 @@ const HomePage = () => {
       try {
         getAllBudgets(user.id);
         getAllExpenses(user.id);
+        getAllIncomes(user.id);
       } catch (error) {
         console.error("Erreur:", error);
       }
     };
     fetchDatas();
-  }, [getAllBudgets, getAllExpenses, user]);
+  }, [getAllBudgets, getAllExpenses, getAllIncomes, user]);
 
   const HandleBudget = (id: string) => {
     navigate(`/h/budgets/${id}`);
@@ -51,10 +55,7 @@ const HomePage = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             <BudgetForm />
             <ExpenseForm budget={null} />
-            {/* Ton futur troisième élément ici */}
-            <div className="bg-neutral-100 p-4 rounded-lg">
-              Troisième élément (placeholder)
-            </div>
+            <IncomeForm budget={null} />
           </div>
 
           <div className="mt-10 flex flex-col gap-6">
@@ -79,8 +80,16 @@ const HomePage = () => {
                     spent={(getExpenseBudget(budget.id) / budget.amount) * 100}
                   />
                   <div className="flex justify-between text-sm">
-                    <p>{getExpenseBudget(budget.id)} dépensé</p>
-                    <p>{budget.amount - getExpenseBudget(budget.id)} restant</p>
+                    <p>
+                      {getExpenseBudget(budget.id)} FCFA dépensé /{" "}
+                      {getIncomeBudget(budget.id)} FCFA ajouté
+                    </p>
+                    <p>
+                      {budget.amount -
+                        getExpenseBudget(budget.id) +
+                        getIncomeBudget(budget.id)}{" "}
+                      FCFA restant
+                    </p>
                   </div>
                   <button
                     onClick={() => HandleBudget(budget.id)}
@@ -98,10 +107,10 @@ const HomePage = () => {
 
           <div className="mt-10">
             <h2 className="text-2xl md:text-3xl font-semibold mb-4">
-              Dépenses récentes
+              Transactions récentes
             </h2>
             <div>
-              <Table expenses={expenses} />
+              <Table expenses={expenses} incomes={incomes} />
             </div>
           </div>
         </>

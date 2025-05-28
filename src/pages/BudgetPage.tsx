@@ -5,33 +5,37 @@ import { toast } from "react-toastify";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
-import { useExpenseStore } from "../stores/expenseStore";
-import { useUserStore } from "../stores/userStore";
 import { useBudgetStore } from "../stores/budgetStore";
+import { useExpenseStore } from "../stores/expenseStore";
+import { useIncomeStore } from "../stores/incomeStore";
+import { useUserStore } from "../stores/userStore";
+import IncomeForm from "../components/incomeForm/incomeForm";
 
 const BudgetPage = () => {
   const { budgetID } = useParams();
   const { expenses, getAllExpenses, getExpenseBudget } = useExpenseStore();
+  const { incomes, getAllIncomes, getIncomeBudget } = useIncomeStore();
   const { getAllBudgets, getBudgetById, deleteBudget } = useBudgetStore();
   const { user } = useUserStore();
   const navigate = useNavigate();
 
-  
   useEffect(() => {
     const fetchData = async () => {
       try {
         await getAllBudgets(user!.id);
         await getAllExpenses(user!.id);
+        await getAllIncomes(user!.id);
       } catch (error) {
         console.error("Erreur:", error);
       }
     };
     fetchData();
-  }, [getAllBudgets, getAllExpenses, user]);
-  
+  }, [getAllBudgets, getAllExpenses, getAllIncomes, user]);
+
   const budget = getBudgetById(budgetID);
   const spent = getExpenseBudget(budgetID);
-  
+  const added = getIncomeBudget(budgetID);
+
   if (!user) {
     return <Navigate to="/" />;
   }
@@ -41,7 +45,7 @@ const BudgetPage = () => {
       await deleteBudget(user.id, budgetID);
       toast.success("Catégorie supprimée");
       navigate(`/h`);
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
     } catch (error) {
       toast.error("Échec lors de la suppression");
     }
@@ -65,12 +69,14 @@ const BudgetPage = () => {
           </div>
           <Progressbar spent={(spent / budget.amount) * 100} />
           <div className="flex justify-between text-sm mt-4">
-            <p>{spent} FCFA dépensé</p>
-            <p>{budget.amount - spent} FCFA restant</p>
+            <p>
+              {spent} FCFA dépensé / {added} FCFA ajouté
+            </p>
+            <p>{budget.amount - spent + added} FCFA restant</p>
           </div>
           <button
             onClick={handleDelete}
-            className="mt-4 flex items-center justify-center gap-2 px-4 py-3 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
+            className="mt-4 flex items-center justify-center gap-2 px-4 cursor-pointer py-3 bg-red-500 hover:bg-red-600 text-white rounded-md text-sm"
           >
             <Trash className="w-4 h-4" />
             Supprimer
@@ -78,11 +84,15 @@ const BudgetPage = () => {
         </div>
 
         <ExpenseForm budget={budget} />
+        <IncomeForm budget={budget} />
       </div>
 
       <div className="p-6">
-        <h2 className="text-2xl font-semibold mb-4">Dépenses récentes</h2>
-        <Table expenses={expenses.filter((e) => e.budget === budgetID)} />
+        <h2 className="text-2xl font-semibold mb-4">Transactions récentes</h2>
+        <Table
+          expenses={expenses.filter((e) => e.budget === budgetID)}
+          incomes={incomes.filter((e) => e.budget === budgetID)}
+        />
       </div>
     </main>
   );
