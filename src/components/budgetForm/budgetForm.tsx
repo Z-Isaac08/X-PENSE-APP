@@ -3,6 +3,7 @@ import { useState } from "react";
 import { toast } from "react-toastify";
 import { useBudgetStore } from "../../stores/budgetStore";
 import { useUserStore } from "../../stores/userStore";
+import HeaderForm from "../ui/HeaderForm";
 
 const BudgetForm = () => {
   const [newBudget, setNewBudget] = useState({ name: "", amount: "" });
@@ -33,21 +34,18 @@ const BudgetForm = () => {
       await addBudget(user!.id, budget);
       toast.success("Catégorie ajoutée avec succès !");
       setNewBudget({ name: "", amount: "" });
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       toast.error("Erreur lors de l'ajout du budget.");
     }
   };
 
   return (
-    <div className="mt-8 p-6 border-2 col-span-1 border-dashed border-neutral-700 rounded-lg relative w-full">
+    <div className="mt-8 p-6 border-2 col-span-1 border-dashed text-[#1f1f1f] dark:text-neutral-100 border-neutral-700 rounded-lg relative w-full">
       <form
         className="flex flex-col h-full justify-between gap-5"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-xl font-semibold text-[#1f1f1f]">
-          Nouvelle catégorie
-        </h2>
+        <HeaderForm title="Nouvelle catégorie" />
 
         <input
           type="text"
@@ -55,7 +53,7 @@ const BudgetForm = () => {
           placeholder="Nom de catégorie"
           onChange={(e) => setNewBudget({ ...newBudget, name: e.target.value })}
           required
-          className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full placeholder-neutral-400 p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
         />
 
         <input
@@ -66,7 +64,7 @@ const BudgetForm = () => {
             setNewBudget({ ...newBudget, amount: e.target.value })
           }
           required
-          className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full p-3 text-lg border-2 border-neutral-400 placeholder-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
         />
 
         <button

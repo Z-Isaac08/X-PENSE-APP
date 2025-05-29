@@ -5,6 +5,7 @@ import { useBudgetStore, type BudgetInterface } from "../../stores/budgetStore";
 import { useExpenseStore } from "../../stores/expenseStore";
 import { useUserStore } from "../../stores/userStore";
 import { formatDate } from "../../utils";
+import HeaderForm from "../ui/HeaderForm";
 
 const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
   const [newExpense, setNewExpense] = useState({
@@ -47,17 +48,15 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
   };
 
   return (
-    <div className="mt-8 p-6 border-2 border-dashed border-neutral-700 rounded-lg relative w-full">
+    <div className="mt-8 p-6 border-2 border-dashed text-[#1f1f1f] dark:text-neutral-100 border-neutral-700 rounded-lg relative w-full">
       <form
         className="flex flex-col h-full justify-between gap-5"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-xl font-semibold text-[#1f1f1f]">
-          Nouvelle dépense
-        </h2>
+        <HeaderForm title="Nouvelle dépense" />
         <input
           type="text"
-          className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full p-3 text-lg border-2 border-neutral-400 placeholder-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
           value={newExpense.name}
           placeholder="Nom de dépense"
           onChange={(e) =>
@@ -67,7 +66,7 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
         />
         <input
           type="number"
-          className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full p-3 text-lg border-2 placeholder-neutral-400 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
           value={newExpense.amount}
           placeholder="Montant"
           onChange={(e) =>
@@ -75,9 +74,9 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
           }
           required
         />
-        {!budget ? (
+        {!budget && (
           <select
-            className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+            className="w-full p-3 text-lg border-2 placeholder-neutral-400 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
             value={newExpense.budgetId}
             onChange={(e) =>
               setNewExpense({ ...newExpense, budgetId: e.target.value })
@@ -87,13 +86,11 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
               Sélectionner un budget
             </option>
             {budgets.map((budget) => (
-              <option key={budget.id} value={budget.id}>
+              <option key={budget.id} value={budget.id} className="text-[#1f1f1f]">
                 {budget.name}
               </option>
             ))}
           </select>
-        ) : (
-          <></>
         )}
 
         <button

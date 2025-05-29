@@ -27,7 +27,7 @@ const RegisterPage = () => {
   };
 
   return (
-    <main className="flex md:flex-row flex-col md:items-start items-center justify-center p-9 text-neutral-900">
+    <main className="flex md:flex-row flex-col md:items-start items-center text-[#1f1f1f] dark:text-neutral-100 justify-center p-9">
       <form
         onSubmit={handleSubmit}
         className="flex max-w-full md:max-w-1/2 flex-col text-center md:text-left"
@@ -47,11 +47,11 @@ const RegisterPage = () => {
           placeholder="Entrez votre nom"
           onChange={(e) => setName(e.target.value)}
           required
-          className="mt-6 w-full md:max-w-2/4 h-14 text-center md:text-left rounded border-[1.8px] border-neutral-800/45 bg-transparent px-2 text-lg focus:border-blue-600 focus:outline-none"
+          className="mt-6 w-full md:max-w-2/4 h-14 text-center placeholder-neutral-400 md:text-left rounded border-[1.8px] border-neutral-400 bg-transparent px-2 text-lg focus:border-[#3170dd]focus:outline-none"
         />
         <button
           type="submit"
-          className="mt-6 flex items-center md:justify-start justify-center gap-2 rounded w-full md:w-fit bg-neutral-900 px-6 py-2 text-lg text-white cursor-pointer hover:opacity-90 transition-all duration-500 hover:bg-neutral-800"
+          className="mt-6 flex items-center md:justify-start justify-center gap-2 rounded w-full md:w-fit bg-[#1f1f1f] px-6 py-2 text-lg text-white cursor-pointer hover:opacity-90 transition-all duration-500 hover:bg-neutral-800"
         >
           <UserPlus />
           <span className="py-2">Commencer</span>

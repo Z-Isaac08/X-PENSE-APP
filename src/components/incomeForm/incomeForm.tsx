@@ -5,6 +5,7 @@ import { useBudgetStore, type BudgetInterface } from "../../stores/budgetStore";
 import { useIncomeStore } from "../../stores/incomeStore";
 import { useUserStore } from "../../stores/userStore";
 import { formatDate } from "../../utils";
+import HeaderForm from "../ui/HeaderForm";
 
 const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
   const [newIncome, setNewIncome] = useState({
@@ -47,15 +48,15 @@ const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
   };
 
   return (
-    <div className="mt-8 p-6 border-2 border-dashed border-neutral-700 rounded-lg relative w-full">
+    <div className="mt-8 p-6 border-2 border-dashed text-[#1f1f1f] dark:text-neutral-100 border-neutral-700 rounded-lg relative w-full">
       <form
         className="flex flex-col h-full justify-between gap-5"
         onSubmit={handleSubmit}
       >
-        <h2 className="text-xl font-semibold text-[#1f1f1f]">Nouveau revenu</h2>
+        <HeaderForm title="Nouveau revenu" />
         <input
           type="text"
-          className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full p-3 text-lg border-2 border-neutral-400 placeholder-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
           value={newIncome.name}
           placeholder="Source du revenu"
           onChange={(e) => setNewIncome({ ...newIncome, name: e.target.value })}
@@ -63,7 +64,7 @@ const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
         />
         <input
           type="number"
-          className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full p-3 text-lg border-2 border-neutral-400 placeholder-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
           value={newIncome.amount}
           placeholder="Montant"
           onChange={(e) =>
@@ -71,7 +72,7 @@ const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
           }
           required
         />
-        {!budget ? (
+        {!budget && (
           <select
             className="w-full p-3 text-lg border-2 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
             value={newIncome.budgetId}
@@ -83,13 +84,11 @@ const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
               Sélectionner un budget
             </option>
             {budgets.map((budget) => (
-              <option key={budget.id} value={budget.id}>
+              <option key={budget.id} value={budget.id} className="text-[#1f1f1f]">
                 {budget.name}
               </option>
             ))}
           </select>
-        ) : (
-          <></>
         )}
 
         <button

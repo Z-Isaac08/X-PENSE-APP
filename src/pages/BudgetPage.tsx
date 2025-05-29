@@ -3,13 +3,13 @@ import { useEffect } from "react";
 import { Navigate, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
+import IncomeForm from "../components/incomeForm/incomeForm";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
 import { useBudgetStore } from "../stores/budgetStore";
 import { useExpenseStore } from "../stores/expenseStore";
 import { useIncomeStore } from "../stores/incomeStore";
 import { useUserStore } from "../stores/userStore";
-import IncomeForm from "../components/incomeForm/incomeForm";
 
 const BudgetPage = () => {
   const { budgetID } = useParams();
@@ -35,6 +35,9 @@ const BudgetPage = () => {
   const budget = getBudgetById(budgetID);
   const spent = getExpenseBudget(budgetID);
   const added = getIncomeBudget(budgetID);
+  const restant = budget!.amount + added - spent;
+  const dangerClass =
+    restant > 0 ? "dark:text-neutral-100" : "dark:text-[#e33131]";
 
   if (!user) {
     return <Navigate to="/" />;
@@ -45,8 +48,7 @@ const BudgetPage = () => {
       await deleteBudget(user.id, budgetID);
       toast.success("Catégorie supprimée");
       navigate(`/h`);
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-    } catch (error) {
+    } catch {
       toast.error("Échec lors de la suppression");
     }
   };
@@ -56,7 +58,7 @@ const BudgetPage = () => {
   }
 
   return (
-    <main className="p-8 sm:p-6 md:p-10 lg:p-14 h-full space-y-8">
+    <main className="p-8 sm:p-6 md:p-10 lg:p-14 h-full space-y-8 text-[#1f1f1f] dark:text-neutral-100">
       <h1 className="text-5xl md:text-7xl font-bold">
         <span className="text-[#3170dd]">{budget.name}</span> Overview
       </h1>
@@ -64,15 +66,23 @@ const BudgetPage = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
         <div className="p-6 flex flex-col gap-5 justify-center">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="text-xl font-semibold">{budget.name}</h3>
-            <p className="text-lg font-medium">{budget.amount} FCFA</p>
-          </div>
-          <Progressbar spent={(spent / budget.amount) * 100} />
-          <div className="flex justify-between text-sm mt-4">
-            <p>
-              {spent} FCFA dépensé / {added} FCFA ajouté
+            <h3 className={`text-xl font-semibold ${dangerClass}`}>
+              {budget.name}
+            </h3>
+            <p className={`text-lg font-medium ${dangerClass}`}>
+              {budget.amount} FCFA
             </p>
-            <p>{budget.amount - spent + added} FCFA restant</p>
+          </div>
+          <Progressbar
+            spent={(spent / (budget.amount + added)) * 100}
+            state={restant > 0 ? true : false}
+          />
+          <div className="flex justify-between text-sm mt-4">
+            <div className="flex flex-col justify-center items-start gap-2">
+              <p className={`${dangerClass}`}>{spent} FCFA dépensé</p>
+              <p className={`${dangerClass}`}>{added} FCFA ajouté</p>
+            </div>
+            <p className={`${dangerClass}`}>{restant} FCFA restant</p>
           </div>
           <button
             onClick={handleDelete}

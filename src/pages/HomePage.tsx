@@ -42,7 +42,7 @@ const HomePage = () => {
   }
 
   return (
-    <main className="min-h-screen px-6 py-8 text-[#1f1f1f] md:px-16">
+    <main className="min-h-screen px-6 py-8 text-[#1f1f1f] dark:text-neutral-100 md:px-16 transition-colors duration-500">
       <h1 className="text-4xl md:text-6xl font-bold mb-8">
         Bienvenue, <span className="text-[#3170dd]">{user.name} !</span>
       </h1>
@@ -63,45 +63,50 @@ const HomePage = () => {
               Catégories récentes
             </h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {budgets.map((budget, index) => (
-                <div
-                  key={budget.id}
-                  className={`rounded-lg p-6 border ${
-                    index % 2 === 0
-                      ? "border-[#1f1f1f] text-[#1f1f1f]"
-                      : "border-blue-600 text-[#3170dd]"
-                  } flex flex-col gap-4`}
-                >
-                  <div className="flex justify-between text-lg font-semibold">
-                    <h3>{budget.name}</h3>
-                    <p>{budget.amount} FCFA</p>
-                  </div>
-                  <Progressbar
-                    spent={(getExpenseBudget(budget.id) / budget.amount) * 100}
-                  />
-                  <div className="flex justify-between text-sm">
-                    <p>
-                      {getExpenseBudget(budget.id)} FCFA dépensé /{" "}
-                      {getIncomeBudget(budget.id)} FCFA ajouté
-                    </p>
-                    <p>
-                      {budget.amount -
-                        getExpenseBudget(budget.id) +
-                        getIncomeBudget(budget.id)}{" "}
-                      FCFA restant
-                    </p>
-                  </div>
-                  <button
-                    onClick={() => HandleBudget(budget.id)}
-                    className={`mt-2 flex items-center justify-center cursor-pointer gap-2 rounded px-4 py-2 text-white ${
-                      index % 2 === 0 ? "bg-[#1f1f1f]" : "bg-[#3170dd]"
-                    } hover:opacity-90`}
+              {budgets.map((budget, index) => {
+                const spent = getExpenseBudget(budget.id);
+                const added = getIncomeBudget(budget.id);
+                const restant = budget.amount - spent + added;
+                return (
+                  <div
+                    key={budget.id}
+                    className={`rounded-lg p-6 border ${
+                      index % 2 === 0
+                        ? "border-[#1f1f1f] "
+                        : "border-[#3170dd] text-[#3170dd]"
+                    } ${
+                      restant < 0
+                        ? "border-[#e33131] dark:border-[#e33131] text-[#e33131]"
+                        : "dark:border-neutral-100"
+                    } flex flex-col gap-4`}
                   >
-                    <Info size={18} />
-                    <span>Détails</span>
-                  </button>
-                </div>
-              ))}
+                    <div className="flex justify-between text-lg font-semibold">
+                      <h3>{budget.name}</h3>
+                      <p>{budget.amount} FCFA</p>
+                    </div>
+                    <Progressbar
+                      spent={(spent / (budget.amount + added)) * 100}
+                      state={restant > 0 ? true : false}
+                    />
+                    <div className="flex justify-between text-sm mt-4">
+                      <div className="flex flex-col justify-center items-start gap-2">
+                        <p>{spent} FCFA dépensé</p>
+                        <p>{added} FCFA ajouté</p>
+                      </div>
+                      <p>{restant} FCFA restant</p>
+                    </div>
+                    <button
+                      onClick={() => HandleBudget(budget.id)}
+                      className={`mt-2 flex items-center justify-center cursor-pointer gap-2 rounded px-4 py-2 text-white ${
+                        index % 2 === 0 ? "bg-[#1f1f1f]" : "bg-[#3170dd]"
+                      }  ${restant < 0 && "bg-[#e33131]"} hover:opacity-90`}
+                    >
+                      <Info size={18} />
+                      <span>Détails</span>
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

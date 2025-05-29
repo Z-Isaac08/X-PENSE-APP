@@ -1,5 +1,6 @@
 @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 @import "tailwindcss";
+@custom-variant dark (&:where(.dark, .dark *));
 
 * {
   font-family: 'Rubik', sans-serif;
@@ -11,7 +12,20 @@ html {
   scroll-behavior: smooth;
 }
 
+:root {
+  --background-color-light: #f7fcfd;
+  --background-color-dark: #171717;
+}
 
-body {
-  background: hsl(190, 60%, 98%);
+.bg-theme-light {
+  background-color: var(--background-color-light);
+}
+
+.bg-theme-dark {
+  background-color: var(--background-color-dark);
+}
+
+.bg-theme-light,
+.bg-theme-dark {
+  transition: background-color 0.5s ease-in-out;
 }

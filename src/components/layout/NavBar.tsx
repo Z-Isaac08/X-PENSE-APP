@@ -1,55 +1,76 @@
-import { Trash } from "lucide-react";
+import { Bell, Bot, SunMoon, Trash } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Logo from "../../assets/logo.svg";
 import { useUserStore } from "../../stores/userStore";
+import { useThemeStore } from "../../stores/ThemeStore";
 
 const NavBar = () => {
   const { user, deleteUser } = useUserStore();
+  const { toggleTheme } = useThemeStore();
   const navigate = useNavigate();
 
   const handleDelete = async () => {
     try {
       await deleteUser();
       toast.success("Compte supprimé avec succès");
-      navigate("/"); 
+      navigate("/");
     } catch (error) {
       console.error(error);
     }
   };
 
-  const handleSubmit = () => {
-    navigate("/h");
-  };
-
   return (
-    <nav className="w-full md:p-10 gap-5 flex-col flex md:flex-row p-5 sm:p-2 text-[hsl(0, 0%, 12%)] items-center justify-between">
-      {!user ? (
-        <div className="flex items-center cursor-pointer gap-3">
-          <img src={Logo} className="md:h-8 h-6" />
-          <p className="md:text-3xl text-xl">
-            <span className="text-[#3170dd] font-bold">X</span>pense
-          </p>
-        </div>
-      ) : (
-        <>
-          <div
-            className="flex items-center cursor-pointer gap-3"
-            onClick={handleSubmit}
-          >
-            <img src={Logo} className="h-8" />
-            <p className="md:text-3xl text-xl">
-              <span className="text-[#3170dd] font-bold">X</span>pense
-            </p>
-          </div>
+    <nav className="w-full flex flex-col md:flex-row items-center justify-between p-5 md:p-10 gap-5 text-[#1f1f1f] dark:text-neutral-100 border-b border-neutral-200 dark:border-neutral-700">
+      
+      {/* Logo et Titre */}
+      <div
+        className="flex items-center cursor-pointer gap-3"
+        onClick={() => navigate(user ? "/h" : "/")}
+      >
+        <img src={Logo} className="h-8" alt="Logo" />
+        <p className="md:text-3xl text-xl font-bold">
+          <span className="text-[#3170dd]">X</span>pense
+        </p>
+      </div>
+
+      {/* Actions Utilisateur */}
+      {user && (
+        <div className="flex items-center gap-4">
+          {/* Changer de thème */}
           <button
-            className="text-[#e33131] cursor-pointer flex items-center gap-3 w-fit border border-[#e33131] bg-[#e331311a] md:text-base hover:border-none transition-all duration-300 hover:text-white hover:bg-[#e33131] rounded-sm p-2.5 text-sm md:p-3"
+            className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+            onClick={toggleTheme}
+          >
+            <SunMoon className="w-5 h-5" />
+          </button>
+
+          {/* Notifications */}
+          <button
+            className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+            onClick={() => navigate("/notifications")}
+          >
+            <Bell className="w-5 h-5" />
+          </button>
+
+          {/* Chatbot Financier */}
+          <button
+            className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+            onClick={() => navigate("/chat")}
+          >
+            <Bot className="w-5 h-5" />
+          </button>
+
+          {/* Supprimer le compte */}
+          <button
+            className="flex items-center gap-2 border border-[#e33131] bg-[#e331311a] dark:bg-[#e3313140] text-[#e33131] hover:border-none hover:text-white hover:bg-[#e33131] rounded-sm px-3 py-2 transition text-sm md:text-base"
             onClick={handleDelete}
+            title="Supprimer ce compte"
           >
             <Trash />
-            <span className="font-extralight">Supprimer ce compte</span>
+            <span className="font-extralight hidden md:block">Supprimer</span>
           </button>
-        </>
+        </div>
       )}
     </nav>
   );
