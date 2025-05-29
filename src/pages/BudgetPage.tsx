@@ -60,7 +60,7 @@ const BudgetPage = () => {
   return (
     <main className="p-8 sm:p-6 md:p-10 lg:p-14 h-full space-y-8 text-[#1f1f1f] dark:text-neutral-100">
       <h1 className="text-5xl md:text-7xl font-bold">
-        <span className="text-[#3170dd]">{budget.name}</span> Overview
+        Aperçu de <span className="text-[#3170dd]">{budget.name}</span>
       </h1>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
