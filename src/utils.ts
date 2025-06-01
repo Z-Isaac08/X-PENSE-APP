@@ -9,3 +9,9 @@ export function formatDate(timestamp: string | number | Date) {
   // Retourner la date formatée
   return `${day}-${month}-${year}`;
 }
+
+export function parseFormattedDate(formattedDate: string) {
+  const [day, month, year] = formattedDate.split("-").map(Number);
+
+  return new Date(year, month - 1, day);
+}

@@ -8,25 +8,16 @@ interface ThemeStore {
 export const useThemeStore = create<ThemeStore>((set) => {
   const savedTheme = localStorage.getItem("theme") === "dark";
 
-  // Appliquer la classe "dark" dès le chargement si nécessaire
-  if (savedTheme) {
-    document.documentElement.classList.add("dark");
-  } else {
-    document.documentElement.classList.remove("dark");
-  }
+  // Appliquer le data-theme dès le chargement
+  document.documentElement.setAttribute("data-theme", savedTheme ? "dark" : "light");
 
   return {
     isDarkMode: savedTheme,
     toggleTheme: () =>
       set((state) => {
         const newTheme = !state.isDarkMode;
-        if (newTheme) {
-          document.documentElement.classList.add("dark");
-          localStorage.setItem("theme", "dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-          localStorage.setItem("theme", "light");
-        }
+        document.documentElement.setAttribute("data-theme", newTheme ? "dark" : "light");
+        localStorage.setItem("theme", newTheme ? "dark" : "light");
         return { isDarkMode: newTheme };
       }),
   };

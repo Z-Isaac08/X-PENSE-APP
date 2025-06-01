@@ -1,9 +1,9 @@
-import { Bell, Bot, SunMoon, Trash } from "lucide-react";
+import { Bell, Bot, ChartNoAxesCombined, SunMoon, Trash } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Logo from "../../assets/logo.svg";
-import { useUserStore } from "../../stores/userStore";
 import { useThemeStore } from "../../stores/ThemeStore";
+import { useUserStore } from "../../stores/userStore";
 
 const NavBar = () => {
   const { user, deleteUser } = useUserStore();
@@ -22,7 +22,6 @@ const NavBar = () => {
 
   return (
     <nav className="w-full flex flex-col md:flex-row items-center justify-between p-5 md:p-10 gap-5 text-[#1f1f1f] dark:text-neutral-100 border-b border-neutral-200 dark:border-neutral-700">
-      
       {/* Logo et Titre */}
       <div
         className="flex items-center cursor-pointer gap-3"
@@ -37,12 +36,20 @@ const NavBar = () => {
       {/* Actions Utilisateur */}
       {user && (
         <div className="flex items-center gap-4">
-          {/* Changer de thème */}
+          {/* Thème */}
           <button
             className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
             onClick={toggleTheme}
           >
             <SunMoon className="w-5 h-5" />
+          </button>
+
+          {/* Dashboard */}
+          <button
+            className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+            onClick={() => navigate("/h/dashboard")}
+          >
+            <ChartNoAxesCombined className="w-5 h-5" />
           </button>
 
           {/* Notifications */}

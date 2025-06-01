@@ -9,6 +9,7 @@ import { useThemeStore } from "./stores/ThemeStore";
 const BudgetPage = lazy(() => import("./pages/BudgetPage"));
 const HomePage = lazy(() => import("./pages/HomePage"));
 const RegisterPage = lazy(() => import("./pages/RegisterPage"));
+const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 
 const App = () => {
   const { user } = useUserStore();
@@ -35,6 +36,10 @@ const App = () => {
             <Route
               path="/h/budgets/:budgetID"
               element={<BudgetPage />}
+            />
+            <Route
+              path="/h/dashboard"
+              element={<DashboardPage />}
             />
           </Routes>
         </Layout>

@@ -58,8 +58,8 @@ const BudgetPage = () => {
   }
 
   return (
-    <main className="p-8 sm:p-6 md:p-10 lg:p-14 h-full space-y-8 text-[#1f1f1f] dark:text-neutral-100">
-      <h1 className="text-5xl md:text-7xl font-bold">
+    <main className="min-h-screen px-6 py-8 space-y-8 md:px-16 text-[#1f1f1f] dark:text-neutral-100 transition-colors duration-500">
+      <h1 className="text-4xl md:text-6xl font-bold mb-8">
         Aperçu de <span className="text-[#3170dd]">{budget.name}</span>
       </h1>
 
