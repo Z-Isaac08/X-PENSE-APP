@@ -6,6 +6,7 @@ import { useExpenseStore } from "../../stores/expenseStore";
 import { useUserStore } from "../../stores/userStore";
 import { formatDate } from "../../utils";
 import HeaderForm from "../ui/HeaderForm";
+import { checkExpenseTriggers } from "../notifications/checkExpenseTriggers";
 
 const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
   const [newExpense, setNewExpense] = useState({
@@ -38,6 +39,7 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
         date: formatDate(Date.now()),
       };
       await addExpense(user!.id, expense);
+      await checkExpenseTriggers(user!.id, expense.budget);
       toast.success("Dépense ajoutée avec succès !");
       // Réinitialiser le formulaire ou mettre à jour l'interface utilisateur si nécessaire
       setNewExpense({ name: "", amount: "", budgetId: "" });
@@ -66,6 +68,7 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
         />
         <input
           type="number"
+          min={0}
           className="w-full p-3 text-lg border-2 placeholder-neutral-400 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
           value={newExpense.amount}
           placeholder="Montant"

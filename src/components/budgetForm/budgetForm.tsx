@@ -59,6 +59,7 @@ const BudgetForm = () => {
         <input
           type="number"
           value={newBudget.amount}
+          min={0}
           placeholder="Solde de catégorie"
           onChange={(e) =>
             setNewBudget({ ...newBudget, amount: e.target.value })

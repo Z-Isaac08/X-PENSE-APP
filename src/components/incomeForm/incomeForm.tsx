@@ -64,6 +64,7 @@ const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
         />
         <input
           type="number"
+          min={0}
           className="w-full p-3 text-lg border-2 border-neutral-400 placeholder-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
           value={newIncome.amount}
           placeholder="Montant"

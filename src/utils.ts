@@ -15,3 +15,19 @@ export function parseFormattedDate(formattedDate: string) {
 
   return new Date(year, month - 1, day);
 }
+
+export function getMonth(date: string) {
+  return capitalizeFirstLetter(
+    parseFormattedDate(date).toLocaleString("fr-FR", {
+      month: "long",
+      year: "numeric",
+    })
+  );
+}
+
+export function capitalizeFirstLetter(str: string) {
+  if (typeof str !== "string" || str.length === 0) {
+    return "";
+  }
+  return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
+}

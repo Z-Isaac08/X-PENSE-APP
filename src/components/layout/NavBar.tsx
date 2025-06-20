@@ -2,13 +2,16 @@ import { Bell, Bot, ChartNoAxesCombined, SunMoon, Trash } from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Logo from "../../assets/logo.svg";
+import { useNotificationStore } from "../../stores/notificationStore";
 import { useThemeStore } from "../../stores/ThemeStore";
 import { useUserStore } from "../../stores/userStore";
 
 const NavBar = () => {
   const { user, deleteUser } = useUserStore();
   const { toggleTheme } = useThemeStore();
+  const { notifications } = useNotificationStore();
   const navigate = useNavigate();
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   const handleDelete = async () => {
     try {
@@ -53,12 +56,20 @@ const NavBar = () => {
           </button>
 
           {/* Notifications */}
-          <button
-            className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
-            onClick={() => navigate("/notifications")}
-          >
-            <Bell className="w-5 h-5" />
-          </button>
+          <div className="relative">
+            <button
+              className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+              onClick={() => navigate("/h/notifications")}
+            >
+              <Bell className="w-5 h-5" />
+            </button>
+
+            {unreadCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs font-semibold px-1.5 py-0.5 rounded-full">
+                {unreadCount}
+              </span>
+            )}
+          </div>
 
           {/* Chatbot Financier */}
           <button

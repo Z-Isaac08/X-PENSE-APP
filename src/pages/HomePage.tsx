@@ -4,6 +4,7 @@ import { Navigate, useNavigate } from "react-router";
 import BudgetForm from "../components/budgetForm/budgetForm";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
 import IncomeForm from "../components/incomeForm/incomeForm";
+import { checkMonthlyTriggers } from "../components/notifications/checkMonthlyTriggers";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
 import { useBudgetStore } from "../stores/budgetStore";
@@ -32,6 +33,24 @@ const HomePage = () => {
     };
     fetchDatas();
   }, [getAllBudgets, getAllExpenses, getAllIncomes, user]);
+
+  useEffect(() => {
+    const runMonthlyCheck = async () => {
+      const lastCheck = localStorage.getItem("lastMonthlyCheck");
+      const today = new Date().toDateString();
+
+      if (user && lastCheck !== today) {
+        localStorage.setItem("lastMonthlyCheck", today); // <-- ici d'abord
+        try {
+          await checkMonthlyTriggers(user.id);
+        } catch (error) {
+          console.error("Erreur lors du check mensuel :", error);
+        }
+      }
+    };
+
+    runMonthlyCheck();
+  }, [user]);
 
   const HandleBudget = (id: string) => {
     navigate(`/h/budgets/${id}`);

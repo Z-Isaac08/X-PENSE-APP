@@ -49,7 +49,7 @@ export const useIncomeStore = create<IncomeStore>((set, get) => ({
       );
       set({ incomes });
     } catch (error) {
-      console.error("Erreur lors du chargement des dépenses:", error);
+      console.error("Erreur lors du chargement des revenus:", error);
     }
   },
 

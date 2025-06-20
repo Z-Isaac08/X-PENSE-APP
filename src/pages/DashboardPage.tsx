@@ -1,7 +1,9 @@
 import { useEffect } from "react";
 import { KPICardsContainer } from "../components/dashboard/cards/KPICardsContainer";
+import BudgetEvolutionChart from "../components/dashboard/graphics/BudgetEvolutionChart";
 import CategorySpendingChart from "../components/dashboard/graphics/CategorySpendingChart";
 import MonthlyTrendsChart from "../components/dashboard/graphics/MonthlyTrendsChart";
+import { checkMonthlyTriggers } from "../components/notifications/checkMonthlyTriggers";
 import { useBudgetStore } from "../stores/budgetStore";
 import { useExpenseStore } from "../stores/expenseStore";
 import { useIncomeStore } from "../stores/incomeStore";
@@ -25,6 +27,16 @@ const DashboardPage = () => {
     };
     fetchData();
   }, [getAllBudgets, getAllExpenses, getAllIncomes, user]);
+
+  useEffect(() => {
+    const runMonthlyCheck = async () => {
+      if (user) {
+        await checkMonthlyTriggers(user.id);
+      }
+    };
+    runMonthlyCheck();
+  }, [user]);
+
   return (
     <main className="min-h-screen px-6 py-8 text-[#1f1f1f] dark:text-neutral-100 md:px-16 transition-colors duration-500">
       <h1 className="text-4xl md:text-6xl font-bold mb-8">
@@ -35,6 +47,7 @@ const DashboardPage = () => {
         <MonthlyTrendsChart />
         <CategorySpendingChart />
       </div>
+      <BudgetEvolutionChart />
     </main>
   );
 };
