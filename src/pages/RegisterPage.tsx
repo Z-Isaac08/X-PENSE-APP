@@ -47,7 +47,7 @@ const RegisterPage = () => {
           placeholder="Entrez votre nom"
           onChange={(e) => setName(e.target.value)}
           required
-          className="mt-6 w-full md:max-w-2/4 h-14 text-center placeholder-neutral-400 md:text-left rounded border-[1.8px] border-neutral-400 bg-transparent px-2 text-lg focus:border-[#3170dd]focus:outline-none"
+          className="mt-6 w-full md:max-w-2/4 h-14 text-center placeholder-neutral-400 md:text-left rounded border-[1.8px] border-neutral-400 bg-transparent px-2 text-lg focus:border-none focus:ring-2 focus:ring-[#3170dd] focus:outline-none"
         />
         <button
           type="submit"

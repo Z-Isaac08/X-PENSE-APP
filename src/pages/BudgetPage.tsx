@@ -62,6 +62,7 @@ const BudgetPage = () => {
           <Progressbar
             spent={(spent / (budget.amount + added)) * 100}
             state={restant > 0 ? true : false}
+            even
           />
           <div className="flex justify-between text-sm mt-4">
             <div className="flex flex-col justify-center items-start gap-2">

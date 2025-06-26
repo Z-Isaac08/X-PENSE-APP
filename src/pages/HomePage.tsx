@@ -1,6 +1,6 @@
 import { Info } from "lucide-react";
 import { useEffect } from "react";
-import { Navigate, useNavigate } from "react-router";
+import { Link, Navigate, useNavigate } from "react-router";
 import BudgetForm from "../components/budgetForm/budgetForm";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
 import IncomeForm from "../components/incomeForm/incomeForm";
@@ -19,7 +19,8 @@ const HomePage = () => {
   const { user } = useUserStore();
   const navigate = useNavigate();
 
-  console.log(expenses, incomes)
+  const visibleExpenses = expenses.slice(0, 5);
+  const visibleIncomes = incomes.slice(0, 5);
 
   useEffect(() => {
     const runMonthlyCheck = async () => {
@@ -122,7 +123,18 @@ const HomePage = () => {
               Transactions récentes
             </h2>
             <div>
-              <Table expenses={expenses} incomes={incomes} />
+              <Table expenses={visibleExpenses} incomes={visibleIncomes} />
+              {expenses.length > 5 ||
+                (incomes.length > 5 && (
+                  <div className="mt-2 text-right">
+                    <Link
+                      to="/h/transactions"
+                      className="text-[#3170dd] hover:underline text-sm font-medium"
+                    >
+                      Afficher plus de transactions →
+                    </Link>
+                  </div>
+                ))}
             </div>
           </div>
         </>
