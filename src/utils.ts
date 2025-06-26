@@ -1,33 +1,40 @@
-export function formatDate(timestamp: string | number | Date) {
-  const date = new Date(timestamp);
-
-  // Obtenir les composants de la date
-  const day = String(date.getDate()).padStart(2, "0"); // Obtenir le jour et ajouter un zéro devant si nécessaire
-  const month = String(date.getMonth() + 1).padStart(2, "0"); // Obtenir le mois (0-indexé) et ajouter un zéro devant si nécessaire
-  const year = date.getFullYear(); // Obtenir l'année
-
-  // Retourner la date formatée
-  return `${day}-${month}-${year}`;
+// ✅ Format d'affichage "30 juin 2025"
+export function formatDateDisplay(date: Date | string | number): string {
+  const d = new Date(date);
+  return d.toLocaleString("fr-FR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 }
 
-export function parseFormattedDate(formattedDate: string) {
-  const [day, month, year] = formattedDate.split("-").map(Number);
-
-  return new Date(year, month - 1, day);
-}
-
-export function getMonth(date: string) {
+// ✅ Pour récupérer mois + année "juin 2025"
+export function getMonthLabel(date: Date | string): string {
+  const d = new Date(date);
   return capitalizeFirstLetter(
-    parseFormattedDate(date).toLocaleString("fr-FR", {
+    d.toLocaleString("fr-FR", {
       month: "long",
       year: "numeric",
     })
   );
 }
 
-export function capitalizeFirstLetter(str: string) {
-  if (typeof str !== "string" || str.length === 0) {
-    return "";
-  }
+
+// ✅ Pour parser une string '2025-06-30' (par exemple depuis un input ou Firestore string brute)
+export function parseIsoDate(isoString: string): Date {
+  return new Date(isoString);
+}
+
+// ✅ Pour comparer facilement les mois/années
+export function isSameMonthAndYear(d1: Date, d2: Date): boolean {
+  return (
+    d1.getFullYear() === d2.getFullYear() &&
+    d1.getMonth() === d2.getMonth()
+  );
+}
+
+// 🔠 Capitalisation
+export function capitalizeFirstLetter(str: string): string {
+  if (typeof str !== "string" || str.length === 0) return "";
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }

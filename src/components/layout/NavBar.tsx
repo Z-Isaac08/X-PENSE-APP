@@ -1,4 +1,11 @@
-import { Bell, Bot, ChartNoAxesCombined, SunMoon, Trash } from "lucide-react";
+import {
+  Bell,
+  Bot,
+  ChartNoAxesCombined,
+  House,
+  SunMoon,
+  Trash,
+} from "lucide-react";
 import { useNavigate } from "react-router";
 import { toast } from "react-toastify";
 import Logo from "../../assets/logo.svg";
@@ -39,12 +46,12 @@ const NavBar = () => {
       {/* Actions Utilisateur */}
       {user && (
         <div className="flex items-center gap-4">
-          {/* Thème */}
+          {/* Accueil */}
           <button
             className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
-            onClick={toggleTheme}
+            onClick={() => navigate("/h")}
           >
-            <SunMoon className="w-5 h-5" />
+            <House className="w-5 h-5" />
           </button>
 
           {/* Dashboard */}
@@ -77,6 +84,14 @@ const NavBar = () => {
             onClick={() => navigate("/chat")}
           >
             <Bot className="w-5 h-5" />
+          </button>
+
+          {/* Thème */}
+          <button
+            className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
+            onClick={toggleTheme}
+          >
+            <SunMoon className="w-5 h-5" />
           </button>
 
           {/* Supprimer le compte */}

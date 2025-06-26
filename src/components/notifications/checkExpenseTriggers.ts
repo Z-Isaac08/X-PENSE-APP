@@ -1,4 +1,3 @@
-// ✅ checkExpenseTriggers : déclenché après une dépense
 import { useBudgetStore } from "../../stores/budgetStore";
 import { useExpenseStore } from "../../stores/expenseStore";
 import { useIncomeStore } from "../../stores/incomeStore";

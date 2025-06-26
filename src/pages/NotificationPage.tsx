@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import NotificationCard from "../components/notifications/NotificationCard";
 import { useNotificationStore } from "../stores/notificationStore";
 import { useUserStore } from "../stores/userStore";
-import { parseFormattedDate } from "../utils";
+import { getMonthLabel, isSameMonthAndYear, parseIsoDate } from "../utils";
 
 const NotificationsPage = () => {
   const { user } = useUserStore();
@@ -34,7 +34,9 @@ const NotificationsPage = () => {
     }
   };
 
-  // Navigation mois précédent/suivant
+  const createdAt = user?.createdAt ? parseIsoDate(user.createdAt) : new Date();
+  const canGoPrevious = !isSameMonthAndYear(selectedDate, createdAt);
+
   const goToPreviousMonth = () => {
     setSelectedDate(
       (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
@@ -47,40 +49,36 @@ const NotificationsPage = () => {
     );
   };
 
-  // Filtrage par mois et année
+  // ✅ Filtrage avec parseIsoDate et isSameMonthAndYear
   const filteredNotifications = notifications.filter((notif) => {
-    const notifDate = parseFormattedDate(notif.date);
-    return (
-      notifDate.getMonth() === selectedDate.getMonth() &&
-      notifDate.getFullYear() === selectedDate.getFullYear()
-    );
+    const notifDate = parseIsoDate(notif.date);
+    return isSameMonthAndYear(notifDate, selectedDate);
   });
 
   const sortedNotifications = filteredNotifications.sort(
-    (a, b) =>
-      parseFormattedDate(b.date).getTime() -
-      parseFormattedDate(a.date).getTime()
+    (a, b) => parseIsoDate(b.date).getTime() - parseIsoDate(a.date).getTime()
   );
 
-  const monthLabel = selectedDate.toLocaleString("fr-FR", {
-    month: "long",
-    year: "numeric",
-  });
+  const monthLabel = getMonthLabel(selectedDate);
 
   return (
     <main className="min-h-screen px-6 py-8 md:px-16 text-[#1f1f1f] dark:text-neutral-100 transition-colors duration-500">
       <div className="flex items-center justify-between mb-6 flex-wrap gap-4">
         <div className="flex items-center gap-4">
           <ChevronLeft
-            onClick={goToPreviousMonth}
-            className="text-2xl font-bold"
+            onClick={canGoPrevious ? goToPreviousMonth : undefined}
+            className={`text-2xl font-bold ${
+              canGoPrevious
+                ? "cursor-pointer text-current"
+                : "text-gray-400 cursor-not-allowed"
+            }`}
           />
           <h1 className="text-2xl md:text-3xl font-bold capitalize">
             {monthLabel}
           </h1>
           <ChevronRight
             onClick={goToNextMonth}
-            className="text-2xl font-bold"
+            className="text-2xl font-bold cursor-pointer"
           />
         </div>
 

@@ -13,26 +13,13 @@ import { useIncomeStore } from "../stores/incomeStore";
 import { useUserStore } from "../stores/userStore";
 
 const HomePage = () => {
-  const { budgets, getAllBudgets } = useBudgetStore();
-  const { expenses, getAllExpenses, getExpenseBudget } = useExpenseStore();
-  const { incomes, getAllIncomes, getIncomeBudget } = useIncomeStore();
+  const { budgets } = useBudgetStore();
+  const { expenses, getExpenseBudget } = useExpenseStore();
+  const { incomes, getIncomeBudget } = useIncomeStore();
   const { user } = useUserStore();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    const fetchDatas = async () => {
-      if (!user) return;
-
-      try {
-        getAllBudgets(user.id);
-        getAllExpenses(user.id);
-        getAllIncomes(user.id);
-      } catch (error) {
-        console.error("Erreur:", error);
-      }
-    };
-    fetchDatas();
-  }, [getAllBudgets, getAllExpenses, getAllIncomes, user]);
+  console.log(expenses, incomes)
 
   useEffect(() => {
     const runMonthlyCheck = async () => {
@@ -40,9 +27,9 @@ const HomePage = () => {
       const today = new Date().toDateString();
 
       if (user && lastCheck !== today) {
-        localStorage.setItem("lastMonthlyCheck", today); // <-- ici d'abord
+        localStorage.setItem("lastMonthlyCheck", today);
         try {
-          await checkMonthlyTriggers(user.id);
+          await checkMonthlyTriggers(user.id, expenses, incomes);
         } catch (error) {
           console.error("Erreur lors du check mensuel :", error);
         }
@@ -50,7 +37,7 @@ const HomePage = () => {
     };
 
     runMonthlyCheck();
-  }, [user]);
+  }, [user, expenses, incomes]); // 👈 les dépendances à surveiller
 
   const HandleBudget = (id: string) => {
     navigate(`/h/budgets/${id}`);
@@ -106,6 +93,7 @@ const HomePage = () => {
                     <Progressbar
                       spent={(spent / (budget.amount + added)) * 100}
                       state={restant > 0 ? true : false}
+                      even={index % 2 === 0 ? false : true}
                     />
                     <div className="flex justify-between text-sm mt-4">
                       <div className="flex flex-col justify-center items-start gap-2">

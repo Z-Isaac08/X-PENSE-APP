@@ -11,7 +11,7 @@ import {
 import { useBudgetStore } from "../../../stores/budgetStore";
 import { useExpenseStore } from "../../../stores/expenseStore";
 import { useIncomeStore } from "../../../stores/incomeStore";
-import { getMonth } from "../../../utils";
+import { getMonthLabel } from "../../../utils";
 
 type dataInterface = {
   mois: string;
@@ -34,19 +34,19 @@ const BudgetEvolutionChart = () => {
     const inc = incomes.filter((i) => i.budget === selectedBudgetId);
 
     const allDates = [
-      ...exp.map((e) => getMonth(e.date)),
-      ...inc.map((i) => getMonth(i.date)),
+      ...exp.map((e) => getMonthLabel(e.date)),
+      ...inc.map((i) => getMonthLabel(i.date)),
     ];
     const uniqueMonths = Array.from(new Set(allDates)).sort();
 
     const data = uniqueMonths.map((month) => {
       const totalExp = exp
-        .filter((e) => getMonth(e.date) === month)
+        .filter((e) => getMonthLabel(e.date) === month)
         .reduce((sum, e) => sum + e.amount, 0);
       const totalInc = inc
-        .filter((i) => getMonth(i.date) === month)
+        .filter((i) => getMonthLabel(i.date) === month)
         .reduce((sum, i) => sum + i.amount, 0);
-      console.log({ mois: month, dépenses: totalExp, revenus: totalInc })
+      console.log({ mois: month, dépenses: totalExp, revenus: totalInc });
       return { mois: month, dépenses: totalExp, revenus: totalInc };
     });
 

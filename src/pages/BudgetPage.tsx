@@ -1,5 +1,4 @@
 import { Trash } from "lucide-react";
-import { useEffect } from "react";
 import { Navigate, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
@@ -13,24 +12,11 @@ import { useUserStore } from "../stores/userStore";
 
 const BudgetPage = () => {
   const { budgetID } = useParams();
-  const { expenses, getAllExpenses, getExpenseBudget } = useExpenseStore();
-  const { incomes, getAllIncomes, getIncomeBudget } = useIncomeStore();
-  const { getAllBudgets, getBudgetById, deleteBudget } = useBudgetStore();
+  const { expenses, getExpenseBudget } = useExpenseStore();
+  const { incomes, getIncomeBudget } = useIncomeStore();
+  const { getBudgetById, deleteBudget } = useBudgetStore();
   const { user } = useUserStore();
   const navigate = useNavigate();
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        await getAllBudgets(user!.id);
-        await getAllExpenses(user!.id);
-        await getAllIncomes(user!.id);
-      } catch (error) {
-        console.error("Erreur:", error);
-      }
-    };
-    fetchData();
-  }, [getAllBudgets, getAllExpenses, getAllIncomes, user]);
 
   const budget = getBudgetById(budgetID);
   const spent = getExpenseBudget(budgetID);

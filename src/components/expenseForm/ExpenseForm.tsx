@@ -4,9 +4,8 @@ import { toast } from "react-toastify";
 import { useBudgetStore, type BudgetInterface } from "../../stores/budgetStore";
 import { useExpenseStore } from "../../stores/expenseStore";
 import { useUserStore } from "../../stores/userStore";
-import { formatDate } from "../../utils";
-import HeaderForm from "../ui/HeaderForm";
 import { checkExpenseTriggers } from "../notifications/checkExpenseTriggers";
+import HeaderForm from "../ui/HeaderForm";
 
 const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
   const [newExpense, setNewExpense] = useState({
@@ -36,7 +35,7 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
         name: newExpense.name,
         amount: parseFloat(newExpense.amount),
         budget: newExpense.budgetId,
-        date: formatDate(Date.now()),
+        date: new Date().toISOString(),
       };
       await addExpense(user!.id, expense);
       await checkExpenseTriggers(user!.id, expense.budget);
@@ -89,7 +88,11 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
               Sélectionner un budget
             </option>
             {budgets.map((budget) => (
-              <option key={budget.id} value={budget.id} className="text-[#1f1f1f]">
+              <option
+                key={budget.id}
+                value={budget.id}
+                className="text-[#1f1f1f]"
+              >
                 {budget.name}
               </option>
             ))}

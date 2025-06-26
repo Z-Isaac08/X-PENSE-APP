@@ -5,8 +5,10 @@ import {
   useExpenseStore,
   type ExpenseInterface,
 } from "../../stores/expenseStore";
+
 import { useIncomeStore, type IncomeInterface } from "../../stores/incomeStore";
 import { useUserStore } from "../../stores/userStore";
+import { formatDateDisplay } from "../../utils";
 
 const Table = ({
   expenses,
@@ -26,12 +28,7 @@ const Table = ({
   ];
 
   const sortedTransactions = transactions.sort((a, b) => {
-    const parseDate = (dateStr: string) => {
-      const [day, month, year] = dateStr.split("-");
-      return new Date(`${year}-${month}-${day}`).getTime();
-    };
-
-    return parseDate(b.date) - parseDate(a.date);
+    return new Date(b.date).getTime() - new Date(a.date).getTime();
   });
 
   const handleDelete = async (id: string, type: string) => {
@@ -77,7 +74,7 @@ const Table = ({
                 <td className="px-4 py-2">{transaction.name}</td>
                 <td className="px-4 py-2">{transaction.amount}</td>
                 <td className="px-4 py-2">{budget?.name}</td>
-                <td className="px-4 py-2">{transaction.date}</td>
+                <td className="px-4 py-2">{formatDateDisplay(transaction.date)}</td>
                 <td className="px-4 py-2">
                   {transaction.type === "expense" ? "Dépense" : "Revenu"}
                 </td>

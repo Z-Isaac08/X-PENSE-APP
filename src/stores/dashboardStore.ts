@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { getMonth } from "../utils";
+import { getMonthLabel } from "../utils";
 import { useBudgetStore, type BudgetInterface } from "./budgetStore";
 import { useExpenseStore } from "./expenseStore";
 import { useIncomeStore } from "./incomeStore";
@@ -95,7 +95,7 @@ export const useDashboardStore = create<DashboardStore>(() => ({
     > = {};
 
     expenses.forEach((exp) => {
-      const month = getMonth(exp.date);
+      const month = getMonthLabel(exp.date);
       reportMap[month] = reportMap[month] || {
         totalExpenses: 0,
         totalIncomes: 0,
@@ -104,7 +104,7 @@ export const useDashboardStore = create<DashboardStore>(() => ({
     });
 
     incomes.forEach((inc) => {
-      const month = getMonth(inc.date);
+      const month = getMonthLabel(inc.date);
 
       reportMap[month] = reportMap[month] || {
         totalExpenses: 0,

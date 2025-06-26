@@ -4,6 +4,7 @@ import { addDoc, collection, db, deleteDoc, doc } from "../firebase";
 interface UserInterface {
   id: string;
   name: string;
+  createdAt: string
 }
 
 interface UserStore {
@@ -24,7 +25,8 @@ export const useUserStore = create<UserStore>((set, get) => {
         const usersCollectionRef = collection(db, "users");
         const docRef = await addDoc(usersCollectionRef, { name });
         const userId = docRef.id;
-        const user = { name, id: userId };
+        const createdAt = new Date().toISOString()
+        const user = { createdAt, name, id: userId };
 
         set({ user });
         localStorage.setItem("user", JSON.stringify(user));

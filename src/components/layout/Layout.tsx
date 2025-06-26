@@ -1,11 +1,44 @@
+import { useEffect, useState } from "react";
+import { useBudgetStore } from "../../stores/budgetStore";
+import { useExpenseStore } from "../../stores/expenseStore";
+import { useIncomeStore } from "../../stores/incomeStore";
+import { useUserStore } from "../../stores/userStore";
 import Footer from "./Footer";
 import NavBar from "./NavBar";
 
-type LayoutProps = {
-  children: React.ReactNode;
-};
+const Layout = ({ children }: { children: React.ReactNode }) => {
+  const { user } = useUserStore();
+  const { getAllBudgets } = useBudgetStore();
+  const { getAllExpenses } = useExpenseStore();
+  const { getAllIncomes } = useIncomeStore();
 
-const Layout: React.FC<LayoutProps> = ({ children }) => {
+  const [loading, setLoading] = useState(user !== null); // chargement uniquement si user est présent
+
+  useEffect(() => {
+    const loadData = async () => {
+      if (!user) {
+        setLoading(false); // important : sinon la page reste bloquée
+        return;
+      }
+
+      try {
+        await Promise.all([
+          getAllBudgets(user.id),
+          getAllExpenses(user.id),
+          getAllIncomes(user.id),
+        ]);
+      } catch (err) {
+        console.error("Erreur de chargement global :", err);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    loadData();
+  }, [getAllBudgets, getAllExpenses, getAllIncomes, user]);
+
+  if (loading) return <p className="text-center py-20">Chargement...</p>;
+
   return (
     <section className="flex flex-col min-h-screen">
       <NavBar />

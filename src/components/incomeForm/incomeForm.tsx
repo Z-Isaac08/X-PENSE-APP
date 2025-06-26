@@ -4,7 +4,6 @@ import { toast } from "react-toastify";
 import { useBudgetStore, type BudgetInterface } from "../../stores/budgetStore";
 import { useIncomeStore } from "../../stores/incomeStore";
 import { useUserStore } from "../../stores/userStore";
-import { formatDate } from "../../utils";
 import HeaderForm from "../ui/HeaderForm";
 
 const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
@@ -35,7 +34,7 @@ const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
         name: newIncome.name,
         amount: parseFloat(newIncome.amount),
         budget: newIncome.budgetId,
-        date: formatDate(Date.now()),
+        date: new Date().toISOString(),
       };
       await addIncome(user!.id, income);
       toast.success("Revenu ajouté avec succès !");
@@ -85,7 +84,11 @@ const IncomeForm = ({ budget }: { budget: BudgetInterface | null }) => {
               Sélectionner un budget
             </option>
             {budgets.map((budget) => (
-              <option key={budget.id} value={budget.id} className="text-[#1f1f1f]">
+              <option
+                key={budget.id}
+                value={budget.id}
+                className="text-[#1f1f1f]"
+              >
                 {budget.name}
               </option>
             ))}
