@@ -66,7 +66,7 @@ Action Execution (si nécessaire) → Display
 
 ```bash
 # Clone
-git clone https://github.com/votre-username/xpense.git
+git clone https://github.com/Z-Isaac08/X-PENSE-APP.git
 cd xpense
 
 # Install
