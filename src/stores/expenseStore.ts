@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { addDoc, collection, deleteDoc, doc, getDocs, db } from "../firebase";
+import { addDoc, collection, db, deleteDoc, doc, getDocs } from "../firebase";
 
 export interface ExpenseInterface {
   id: string;
@@ -11,7 +11,10 @@ export interface ExpenseInterface {
 
 interface ExpenseStore {
   expenses: ExpenseInterface[];
-  addExpense: (userId: string, expense: Omit<ExpenseInterface, "id">) => Promise<void>;
+  addExpense: (
+    userId: string,
+    expense: Omit<ExpenseInterface, "id">
+  ) => Promise<void>;
   getAllExpenses: (userId: string) => Promise<void>;
   deleteExpense: (userId: string, expenseId: string) => Promise<void>;
   deleteAllExpenses: (userId: string) => Promise<void>;
@@ -38,8 +41,12 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
 
   getAllExpenses: async (userId) => {
     try {
-      const expensesSnapshot = await getDocs(collection(db, "users", userId, "expenses"));
-      const expenses = expensesSnapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as ExpenseInterface));
+      const expensesSnapshot = await getDocs(
+        collection(db, "users", userId, "expenses")
+      );
+      const expenses = expensesSnapshot.docs.map(
+        (doc) => ({ id: doc.id, ...doc.data() } as ExpenseInterface)
+      );
       set({ expenses });
     } catch (error) {
       console.error("Erreur lors du chargement des dépenses:", error);
@@ -62,7 +69,9 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
 
   deleteAllExpenses: async (userId) => {
     try {
-      const expensesSnapshot = await getDocs(collection(db, "users", userId, "expenses"));
+      const expensesSnapshot = await getDocs(
+        collection(db, "users", userId, "expenses")
+      );
       const batchPromises = expensesSnapshot.docs.map((docItem) =>
         deleteDoc(doc(db, "users", userId, "expenses", docItem.id))
       );
@@ -70,7 +79,10 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
       await Promise.all(batchPromises);
       set({ expenses: [] });
     } catch (error) {
-      console.error("Erreur lors de la suppression de toutes les dépenses:", error);
+      console.error(
+        "Erreur lors de la suppression de toutes les dépenses:",
+        error
+      );
       throw new Error("Erreur lors de la suppression de toutes les dépenses");
     }
   },
@@ -82,7 +94,9 @@ export const useExpenseStore = create<ExpenseStore>((set, get) => ({
 
   getExpenseBudget: (budgetId) => {
     if (!budgetId) return 0;
-    const filteredExpenses = get().expenses.filter((expense) => expense.budget === budgetId);
+    const filteredExpenses = get().expenses.filter(
+      (expense) => expense.budget === budgetId
+    );
     return filteredExpenses.reduce((sum, exp) => sum + (exp.amount || 0), 0);
   },
 }));

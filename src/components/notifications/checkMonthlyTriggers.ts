@@ -1,6 +1,7 @@
 import { type ExpenseInterface } from "../../stores/expenseStore";
 import { type IncomeInterface } from "../../stores/incomeStore";
 import { useNotificationStore } from "../../stores/notificationStore";
+import { formatCurrency } from "../../utils";
 
 export const checkMonthlyTriggers = async (
   userId: string,
@@ -8,8 +9,6 @@ export const checkMonthlyTriggers = async (
   incomes: IncomeInterface[]
 ) => {
   const { addNotifications } = useNotificationStore.getState();
-
-  console.log(expenses, incomes);
 
   const now = new Date();
   const month = now.getMonth();
@@ -20,7 +19,7 @@ export const checkMonthlyTriggers = async (
   // Filtrage des données du mois courant
   const currentMonthExpenses = expenses.filter((e) => {
     const d = new Date(e.date);
-    console.log(d)
+    console.log(d);
     return d.getMonth() === month && d.getFullYear() === year;
   });
   const currentMonthIncomes = incomes.filter((i) => {
@@ -39,9 +38,9 @@ export const checkMonthlyTriggers = async (
 
   // Résumé mensuel intermédiaire (le 15, seulement si activité)
   if (day === 15 && (totalExpenses > 0 || totalIncomes > 0)) {
-    const midSummary = `Résumé intermédiaire de ${now.toLocaleString("fr-FR", {
-      month: "long",
-    })} : ${totalExpenses.toLocaleString()} FCFA de dépenses, ${totalIncomes.toLocaleString()} FCFA de revenus.`;
+    const monthName = now.toLocaleString("fr-FR", { month: "long" });
+    const balance = totalIncomes - totalExpenses;
+    const midSummary = `📊 Résumé mi-${monthName}: ${formatCurrency(totalExpenses)} de dépenses, ${formatCurrency(totalIncomes)} de revenus. Solde: ${formatCurrency(balance)} ${balance >= 0 ? '✅' : '⚠️'}`;
 
     await addNotifications(userId, {
       message: midSummary,

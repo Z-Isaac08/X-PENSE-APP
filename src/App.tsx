@@ -15,6 +15,7 @@ const RegisterPage = lazy(() => import("./pages/RegisterPage"));
 const DashboardPage = lazy(() => import("./pages/DashboardPage"));
 const NotificationPage = lazy(() => import("./pages/NotificationPage"));
 const TransactionPage = lazy(() => import("./pages/TransactionPage"));
+const ChatBotPage = lazy(() => import("./pages/ChatBotPage"));
 
 const App = () => {
   const { user } = useUserStore();
@@ -39,6 +40,7 @@ const App = () => {
             <Route path="/h/budgets/:budgetID" element={<BudgetPage />} />
             <Route path="/h/dashboard" element={<DashboardPage />} />
             <Route path="/h/notifications" element={<NotificationPage />} />
+            <Route path="/h/chat" element={<ChatBotPage />} />
             <Route path="/h/transactions" element={<TransactionPage />} />
           </Routes>
         </Layout>

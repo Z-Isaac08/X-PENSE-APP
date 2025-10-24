@@ -18,7 +18,7 @@ const NavBar = () => {
   const { toggleTheme } = useThemeStore();
   const { notifications } = useNotificationStore();
   const navigate = useNavigate();
-  const unreadCount = notifications.filter((n) => !n.read).length;
+  const unreadCount = notifications.filter((n: any) => !n.read).length;
 
   const handleDelete = async () => {
     try {
@@ -81,7 +81,7 @@ const NavBar = () => {
           {/* Chatbot Financier */}
           <button
             className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
-            onClick={() => navigate("/chat")}
+            onClick={() => navigate("/h/chat")}
           >
             <Bot className="w-5 h-5" />
           </button>

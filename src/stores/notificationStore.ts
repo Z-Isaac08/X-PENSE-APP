@@ -30,9 +30,27 @@ interface NotificationStore {
     notificationId: string
   ) => Promise<void>;
   clearAllNotifications: (userId: string) => Promise<void>;
+  // New methods for enhanced functionality
+  getNotificationStats: () => {
+    total: number;
+    unread: number;
+    byType: Record<string, number>;
+    recent: number;
+  };
+  getFilteredNotifications: (filter: {
+    type?: string;
+    read?: boolean;
+    dateRange?: { start: string; end: string };
+  }) => NotificationInterface[];
+  markAllAsRead: (userId: string) => Promise<void>;
+  getNotificationsByPriority: () => {
+    critical: NotificationInterface[];
+    important: NotificationInterface[];
+    normal: NotificationInterface[];
+  };
 }
 
-export const useNotificationStore = create<NotificationStore>((set) => ({
+export const useNotificationStore = create<NotificationStore>((set, get) => ({
   notifications: [],
   addNotifications: async (userId, notification) => {
     try {
@@ -112,7 +130,8 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
         deleteDoc(doc(db, "users", userId, "notifications", docItem.id))
       );
 
-      Promise.all(batchPromises);
+      await Promise.all(batchPromises);
+      set({ notifications: [] });
     } catch (error) {
       console.error(
         "Erreur lors de la suppression de toutes les notifications:",
@@ -122,5 +141,114 @@ export const useNotificationStore = create<NotificationStore>((set) => ({
         "Erreur lors de la suppression de toutes les notifications"
       );
     }
+  },
+
+  // New enhanced methods
+  getNotificationStats: () => {
+    const { notifications } = get();
+    const now = new Date();
+    const last24Hours = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+
+    const stats: {
+      total: number;
+      unread: number;
+      byType: Record<string, number>;
+      recent: number;
+    } = {
+      total: notifications.length,
+      unread: notifications.filter((n: NotificationInterface) => !n.read).length,
+      byType: {} as Record<string, number>,
+      recent: notifications.filter((n: NotificationInterface) => new Date(n.date) >= last24Hours).length,
+    };
+
+    notifications.forEach((n: NotificationInterface) => {
+      stats.byType[n.type] = (stats.byType[n.type] || 0) + 1;
+    });
+
+    return stats;
+  },
+
+  getFilteredNotifications: (filter) => {
+    const { notifications } = useNotificationStore.getState();
+    
+    return notifications.filter(notification => {
+      // Filter by type
+      if (filter.type && notification.type !== filter.type) {
+        return false;
+      }
+
+      // Filter by read status
+      if (filter.read !== undefined && notification.read !== filter.read) {
+        return false;
+      }
+
+      // Filter by date range
+      if (filter.dateRange) {
+        const notifDate = new Date(notification.date);
+        const startDate = new Date(filter.dateRange.start);
+        const endDate = new Date(filter.dateRange.end);
+        
+        if (notifDate < startDate || notifDate > endDate) {
+          return false;
+        }
+      }
+
+      return true;
+    });
+  },
+
+  markAllAsRead: async (userId) => {
+    try {
+      const { notifications } = useNotificationStore.getState();
+      const unreadNotifications = notifications.filter(n => !n.read);
+
+      const updatePromises = unreadNotifications.map(async (notification) => {
+        const notificationRef = doc(
+          db,
+          "users",
+          userId,
+          "notifications",
+          notification.id
+        );
+        return updateDoc(notificationRef, { read: true });
+      });
+
+      await Promise.all(updatePromises);
+
+      set((state) => ({
+        notifications: state.notifications.map(notif => ({
+          ...notif,
+          read: true
+        }))
+      }));
+    } catch (error) {
+      console.error("Erreur lors du marquage de toutes les notifications:", error);
+      throw error;
+    }
+  },
+
+  getNotificationsByPriority: () => {
+    const { notifications } = useNotificationStore.getState();
+    
+    const critical: NotificationInterface[] = [];
+    const important: NotificationInterface[] = [];
+    const normal: NotificationInterface[] = [];
+
+    notifications.forEach(notification => {
+      // Determine priority based on type and content
+      if (notification.type === 'alert' || 
+          notification.message.includes('Budget dépassé') ||
+          notification.message.includes('Limite atteinte')) {
+        critical.push(notification);
+      } else if (notification.type === 'expense' && 
+                 (notification.message.includes('élevée') || 
+                  notification.message.includes('augmentation'))) {
+        important.push(notification);
+      } else {
+        normal.push(notification);
+      }
+    });
+
+    return { critical, important, normal };
   },
 }));
