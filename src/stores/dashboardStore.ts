@@ -45,7 +45,7 @@ export interface DashboardStore {
   };
 }
 
-export const useDashboardStore = create<DashboardStore>((get, set) => ({
+export const useDashboardStore = create<DashboardStore>(() => ({
   getTotalExpenses: () => {
     const expenses = useExpenseStore.getState().expenses;
     return expenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -66,7 +66,7 @@ export const useDashboardStore = create<DashboardStore>((get, set) => ({
 
   getTopBudgets: () => {
     const budgets = useBudgetStore.getState().budgets;
-    return [...budgets].sort((a, b) => b.amount - a.amount).slice(0, 5);
+    return [...budgets].sort((a, b) => (b.amount || 0) - (a.amount || 0)).slice(0, 5);
   },
 
   getTopExpensesCategories: () => {
@@ -101,8 +101,13 @@ export const useDashboardStore = create<DashboardStore>((get, set) => ({
       .filter((exp) => exp.budget === budget.id)
       .reduce((sum, exp) => sum + exp.amount, 0);
 
-    const remaining = budget.amount - spent;
-    const percentage = budget.amount === 0 ? 0 : (spent / budget.amount) * 100;
+    // Pour les catégories de suivi, pas de notion de remaining/percentage
+    if (budget.type === 'tracking') {
+      return { spent, remaining: 0, percentage: 0 };
+    }
+
+    const remaining = (budget.amount || 0) - spent;
+    const percentage = (budget.amount || 0) === 0 ? 0 : (spent / (budget.amount || 0)) * 100;
 
     return { spent, remaining, percentage: Math.min(100, percentage) };
   },
@@ -188,11 +193,14 @@ export const useDashboardStore = create<DashboardStore>((get, set) => ({
     let totalSpent = 0;
 
     budgets.forEach((budget) => {
-      totalBudget += budget.amount;
-      const budgetExpenses = expenses
-        .filter((exp) => exp.budget === budget.id)
-        .reduce((sum, exp) => sum + exp.amount, 0);
-      totalSpent += budgetExpenses;
+      // Compter seulement les budgets plafonnés pour le taux d'utilisation
+      if (budget.type === 'capped' && budget.amount) {
+        totalBudget += budget.amount;
+        const budgetExpenses = expenses
+          .filter((exp) => exp.budget === budget.id)
+          .reduce((sum, exp) => sum + exp.amount, 0);
+        totalSpent += budgetExpenses;
+      }
     });
 
     if (totalBudget === 0) return 0;
@@ -200,9 +208,8 @@ export const useDashboardStore = create<DashboardStore>((get, set) => ({
   },
 
   getExpenseGrowthRate: (): number => {
-    const store = get();
-    const current = store.getCurrentMonthData();
-    const previous = store.getPreviousMonthData();
+    const current = useDashboardStore.getState().getCurrentMonthData();
+    const previous = useDashboardStore.getState().getPreviousMonthData();
     
     if (previous.expenses === 0) return current.expenses > 0 ? 100 : 0;
     return ((current.expenses - previous.expenses) / previous.expenses) * 100;
@@ -265,9 +272,8 @@ export const useDashboardStore = create<DashboardStore>((get, set) => ({
     incomes: { current: number; previous: number; change: number };
     balance: { current: number; previous: number; change: number };
   } => {
-    const store = get();
-    const current = store.getCurrentMonthData();
-    const previous = store.getPreviousMonthData();
+    const current = useDashboardStore.getState().getCurrentMonthData();
+    const previous = useDashboardStore.getState().getPreviousMonthData();
 
     const calculateChange = (curr: number, prev: number) => {
       if (prev === 0) return curr > 0 ? 100 : 0;

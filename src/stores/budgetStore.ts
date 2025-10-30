@@ -1,10 +1,13 @@
 import { create } from "zustand";
-import { addDoc, collection, db, deleteDoc, doc, getDocs } from "../firebase";
+import { addDoc, collection, db, deleteDoc, doc, getDocs, updateDoc } from "../firebase";
+
+export type BudgetType = 'capped' | 'tracking';
 
 export interface BudgetInterface {
   id: string;
   name: string;
-  amount: number;
+  type: BudgetType;
+  amount?: number; // Optionnel - requis seulement si type = 'capped'
 }
 
 interface BudgetStore {
@@ -25,14 +28,26 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
 
   addBudget: async (userId, budget) => {
     try {
+      // Validation : si type = 'capped', amount doit être fourni
+      if (budget.type === 'capped' && (budget.amount === undefined || budget.amount === null)) {
+        throw new Error("Le montant est obligatoire pour un budget plafonné");
+      }
+
       const budgetsRef = collection(db, "users", userId, "budgets");
-      const docRef = await addDoc(budgetsRef, {
+      const budgetData: any = {
         name: budget.name || "",
-        amount: Number(budget.amount) || 0,
-      });
+        type: budget.type || 'capped',
+      };
+
+      // Ajouter amount seulement si défini
+      if (budget.amount !== undefined && budget.amount !== null) {
+        budgetData.amount = Number(budget.amount);
+      }
+
+      const docRef = await addDoc(budgetsRef, budgetData);
 
       set((state) => ({
-        budgets: [...state.budgets, { ...budget, id: docRef.id, amount: Number(budget.amount) || 0 }],
+        budgets: [...state.budgets, { ...budget, id: docRef.id }],
       }));
     } catch (error) {
       console.error("Erreur lors de l'ajout du budget:", error);
@@ -47,10 +62,15 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
       );
       const budgets = budgetsSnapshot.docs.map((doc) => {
         const data = doc.data();
+        
+        // Migration automatique : si pas de type, considérer comme 'capped'
+        const type: BudgetType = data.type || 'capped';
+        
         return {
           id: doc.id,
           name: data.name || "",
-          amount: Number(data.amount) || 0,
+          type: type,
+          amount: data.amount !== undefined ? Number(data.amount) : undefined,
         };
       });
       set({ budgets });

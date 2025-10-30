@@ -54,8 +54,20 @@ const HomePage = () => {
         Bienvenue, <span className="text-[#3170dd]">{user.name} !</span>
       </h1>
       {budgets.length === 0 ? (
-        <div className="w-auto h-auto">
-          <BudgetForm />
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
+          <div className="text-center space-y-4">
+            <div className="text-6xl mb-4">💰</div>
+            <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-300">
+              Aucun budget pour le moment
+            </h2>
+            <p className="text-base md:text-lg text-neutral-600 dark:text-neutral-400 max-w-md">
+              Commencez par créer votre premier budget pour suivre vos dépenses
+              et optimiser votre gestion financière.
+            </p>
+          </div>
+          <div className="w-full max-w-md">
+            <BudgetForm />
+          </div>
         </div>
       ) : (
         <>
@@ -73,47 +85,121 @@ const HomePage = () => {
               {budgets.map((budget, index) => {
                 const spent = getExpenseBudget(budget.id);
                 const added = getIncomeBudget(budget.id);
-                const restant = budget.amount - spent + added;
-                return (
-                  <div
-                    key={budget.id}
-                    className={`rounded-lg p-6 border ${
-                      index % 2 === 0
-                        ? "border-[#1f1f1f] "
-                        : "border-[#3170dd] text-[#3170dd]"
-                    } ${
-                      restant < 0
-                        ? "border-[#e33131] dark:border-[#e33131] text-[#e33131]"
-                        : "dark:border-neutral-100"
-                    } flex flex-col gap-4`}
-                  >
-                    <div className="flex justify-between text-lg font-semibold">
-                      <h3>{budget.name}</h3>
-                      <p>{budget.amount} FCFA</p>
-                    </div>
-                    <Progressbar
-                      spent={(spent / (budget.amount + added)) * 100}
-                      state={restant > 0 ? true : false}
-                      even={index % 2 === 0 ? false : true}
-                    />
-                    <div className="flex justify-between text-sm mt-4">
-                      <div className="flex flex-col justify-center items-start gap-2">
-                        <p>{spent} FCFA dépensé</p>
-                        <p>{added} FCFA ajouté</p>
-                      </div>
-                      <p>{restant} FCFA restant</p>
-                    </div>
-                    <button
-                      onClick={() => HandleBudget(budget.id)}
-                      className={`mt-2 flex items-center justify-center cursor-pointer gap-2 rounded px-4 py-2 text-white ${
-                        index % 2 === 0 ? "bg-[#1f1f1f]" : "bg-[#3170dd]"
-                      }  ${restant < 0 && "bg-[#e33131]"} hover:opacity-90`}
+
+                // Affichage différent selon le type
+                if (budget.type === "capped") {
+                  // BUDGET PLAFONNÉ
+                  const restant = (budget.amount || 0) - spent + added;
+                  const total = (budget.amount || 0) + added;
+                  const percentage = total > 0 ? (spent / total) * 100 : 0;
+
+                  return (
+                    <div
+                      key={budget.id}
+                      className={`rounded-lg p-6 border ${
+                        index % 2 === 0
+                          ? "border-[#1f1f1f] "
+                          : "border-[#3170dd] text-[#3170dd]"
+                      } ${
+                        restant < 0
+                          ? "border-[#e33131] dark:border-[#e33131] text-[#e33131]"
+                          : "dark:border-neutral-100"
+                      } flex flex-col gap-4`}
                     >
-                      <Info size={18} />
-                      <span>Détails</span>
-                    </button>
-                  </div>
-                );
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col gap-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200 w-fit">
+                            Plafonné
+                          </span>
+                          <h3 className="text-lg font-semibold">
+                            {budget.name}
+                          </h3>
+                        </div>
+                        <p className="text-lg font-semibold">
+                          {budget.amount} FCFA
+                        </p>
+                      </div>
+                      <Progressbar
+                        spent={percentage}
+                        state={restant > 0 ? true : false}
+                        even={index % 2 === 0 ? false : true}
+                      />
+                      <div className="flex justify-between text-sm mt-4">
+                        <div className="flex flex-col justify-center items-start gap-2">
+                          <p>{spent} FCFA dépensé</p>
+                          <p>{added} FCFA ajouté</p>
+                        </div>
+                        <p>{restant} FCFA restant</p>
+                      </div>
+                      <div className="text-sm text-center font-medium">
+                        {restant > 0 ? (
+                          <span className="text-green-600 dark:text-green-400">
+                            Dans les limites
+                          </span>
+                        ) : (
+                          <span className="text-red-600 dark:text-red-400">
+                            Budget dépassé
+                          </span>
+                        )}
+                      </div>
+                      <button
+                        onClick={() => HandleBudget(budget.id)}
+                        className={`mt-2 flex items-center justify-center cursor-pointer gap-2 rounded px-4 py-2 text-white ${
+                          index % 2 === 0 ? "bg-[#1f1f1f]" : "bg-[#3170dd]"
+                        }  ${restant < 0 && "bg-[#e33131]"} hover:opacity-90`}
+                      >
+                        <Info size={18} />
+                        <span>Détails</span>
+                      </button>
+                    </div>
+                  );
+                } else {
+                  // CATÉGORIE DE SUIVI
+                  return (
+                    <div
+                      key={budget.id}
+                      className="rounded-lg p-6 border border-neutral-400 dark:border-neutral-600 flex flex-col gap-4"
+                    >
+                      <div className="flex justify-between items-start">
+                        <div className="flex flex-col gap-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200 w-fit">
+                            Suivi
+                          </span>
+                          <h3 className="text-lg font-semibold">
+                            {budget.name}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <div className="text-center py-4">
+                        <p className="text-4xl font-bold text-[#3170dd]">
+                          {spent.toLocaleString()}
+                        </p>
+                        <p className="text-sm text-neutral-600 dark:text-neutral-400 mt-1">
+                          FCFA dépensé ce mois-ci
+                        </p>
+                      </div>
+
+                      {added > 0 && (
+                        <div className="text-sm text-center text-neutral-600 dark:text-neutral-400">
+                          + {added} FCFA ajouté
+                        </div>
+                      )}
+
+                      <div className="text-xs text-center text-neutral-500 dark:text-neutral-400">
+                        Aucune limite fixée • Analyse des tendances
+                      </div>
+
+                      <button
+                        onClick={() => HandleBudget(budget.id)}
+                        className="mt-2 flex items-center justify-center cursor-pointer gap-2 rounded px-4 py-2 text-white bg-neutral-600 hover:bg-neutral-700 transition-colors"
+                      >
+                        <Info size={18} />
+                        <span>Détails</span>
+                      </button>
+                    </div>
+                  );
+                }
               })}
             </div>
           </div>

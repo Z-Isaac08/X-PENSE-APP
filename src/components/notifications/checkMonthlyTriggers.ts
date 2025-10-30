@@ -1,7 +1,9 @@
 import { type ExpenseInterface } from "../../stores/expenseStore";
 import { type IncomeInterface } from "../../stores/incomeStore";
 import { useNotificationStore } from "../../stores/notificationStore";
+import { useBudgetStore } from "../../stores/budgetStore";
 import { formatCurrency } from "../../utils";
+import { calculateTrackingTrend } from "../../utils/budgetTrends";
 
 export const checkMonthlyTriggers = async (
   userId: string,
@@ -9,6 +11,7 @@ export const checkMonthlyTriggers = async (
   incomes: IncomeInterface[]
 ) => {
   const { addNotifications } = useNotificationStore.getState();
+  const { budgets } = useBudgetStore.getState();
 
   const now = new Date();
   const month = now.getMonth();
@@ -73,6 +76,47 @@ export const checkMonthlyTriggers = async (
       date: now.toISOString(),
       read: false,
     });
+
+    // Résumé par type de budget
+    const cappedBudgets = budgets.filter(b => b.type === 'capped');
+    const trackingBudgets = budgets.filter(b => b.type === 'tracking');
+
+    // Résumé budgets plafonnés
+    if (cappedBudgets.length > 0) {
+      const budgetSummary = cappedBudgets.map(budget => {
+        const spent = currentMonthExpenses
+          .filter(e => e.budget === budget.id)
+          .reduce((sum, e) => sum + e.amount, 0);
+        const percentage = budget.amount ? (spent / budget.amount) * 100 : 0;
+        const status = percentage > 100 ? '⚠️ Dépassé' : percentage > 90 ? '⚠️ Limite proche' : '✅ Respecté';
+        return `${budget.name}: ${status}`;
+      }).join(', ');
+
+      await addNotifications(userId, {
+        message: `📊 Budgets plafonnés - ${budgetSummary}`,
+        type: "alert",
+        date: now.toISOString(),
+        read: false,
+      });
+    }
+
+    // Résumé catégories de suivi avec tendances
+    if (trackingBudgets.length > 0) {
+      trackingBudgets.forEach(async (budget) => {
+        const trend = calculateTrackingTrend(budget.id, expenses);
+        if (trend.currentMonth > 0) {
+          const trendText = trend.trend === 'up' ? '📈 en hausse' : 
+                           trend.trend === 'down' ? '📉 en baisse' : 
+                           '➡️ stable';
+          await addNotifications(userId, {
+            message: `📝 ${budget.name}: ${trend.currentMonth.toLocaleString()} FCFA ce mois (${trendText})`,
+            type: "expense",
+            date: now.toISOString(),
+            read: false,
+          });
+        }
+      });
+    }
 
     // Notif rapport disponible
     const reportMessage = `Votre rapport PDF pour ${now.toLocaleString(

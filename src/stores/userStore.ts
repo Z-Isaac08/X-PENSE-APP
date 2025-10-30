@@ -1,52 +1,46 @@
 import { create } from "zustand";
-import { addDoc, collection, db, deleteDoc, doc } from "../firebase";
+import { useAuthStore } from "./authStore";
 
 interface UserInterface {
   id: string;
   name: string;
-  createdAt: string
+  email: string;
+  createdAt: string;
 }
 
 interface UserStore {
   user: UserInterface | null;
-  addUser: (name: string) => Promise<void>;
-  deleteUser: () => Promise<void>;
 }
 
-export const useUserStore = create<UserStore>((set, get) => {
-  const storedUser = localStorage.getItem("user");
-  const initialUser = storedUser ? JSON.parse(storedUser) : null;
-
+export const useUserStore = create<UserStore>(() => {
+  // Le user est maintenant géré par authStore
+  // Ce store sert juste de compatibilité avec le code existant
+  const authUser = useAuthStore.getState().userProfile;
+  
   return {
-    user: initialUser,
-
-    addUser: async (name) => {
-      try {
-        const usersCollectionRef = collection(db, "users");
-        const docRef = await addDoc(usersCollectionRef, { name });
-        const userId = docRef.id;
-        const createdAt = new Date().toISOString()
-        const user = { createdAt, name, id: userId };
-
-        set({ user });
-        localStorage.setItem("user", JSON.stringify(user));
-      } catch (error) {
-        console.error("Erreur lors de l'ajout de l'utilisateur :", error);
-      }
-    },
-
-    deleteUser: async () => {
-      const user = get().user;
-      if (user) {
-        try {
-          const userDoc = doc(db, "users", user.id);
-          await deleteDoc(userDoc);
-        } catch (error) {
-          console.warn("Erreur lors de la suppression dans Firestore :", error);
-        }
-      }
-      set({ user: null });
-      localStorage.removeItem("user");
-    },
+    user: authUser ? {
+      id: authUser.uid,
+      name: authUser.name,
+      email: authUser.email,
+      createdAt: authUser.createdAt,
+    } : null,
   };
 });
+
+// Hook pour synchroniser userStore avec authStore
+export const syncUserStore = () => {
+  useAuthStore.subscribe((state) => {
+    if (state.userProfile) {
+      useUserStore.setState({
+        user: {
+          id: state.userProfile.uid,
+          name: state.userProfile.name,
+          email: state.userProfile.email,
+          createdAt: state.userProfile.createdAt,
+        },
+      });
+    } else {
+      useUserStore.setState({ user: null });
+    }
+  });
+};

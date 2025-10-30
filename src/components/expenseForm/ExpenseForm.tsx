@@ -57,7 +57,7 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
         <HeaderForm title="Nouvelle dépense" />
         <input
           type="text"
-          className="w-full p-3 text-lg border-2 border-neutral-400 placeholder-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full h-12 sm:h-14 text-center placeholder-neutral-400 sm:text-left rounded border-[1.8px] border-neutral-400 bg-transparent px-4 text-base md:text-lg focus:border-none focus:ring-2 focus:ring-[#3170dd] focus:outline-none transition-all"
           value={newExpense.name}
           placeholder="Nom de dépense"
           onChange={(e) =>
@@ -68,7 +68,7 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
         <input
           type="number"
           min={0}
-          className="w-full p-3 text-lg border-2 placeholder-neutral-400 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+          className="w-full h-12 sm:h-14 text-center placeholder-neutral-400 sm:text-left rounded border-[1.8px] border-neutral-400 bg-transparent px-4 text-base md:text-lg focus:border-none focus:ring-2 focus:ring-[#3170dd] focus:outline-none transition-all"
           value={newExpense.amount}
           placeholder="Montant"
           onChange={(e) =>
@@ -78,7 +78,7 @@ const ExpenseForm = ({ budget }: { budget: BudgetInterface | null }) => {
         />
         {!budget && (
           <select
-            className="w-full p-3 text-lg border-2 placeholder-neutral-400 border-neutral-400 rounded focus:border-[#3170dd] focus:outline-none transition-colors"
+            className="w-full h-12 sm:h-14 text-center placeholder-neutral-400 sm:text-left rounded border-[1.8px] border-neutral-400 bg-transparent px-4 text-base md:text-lg focus:border-none focus:ring-2 focus:ring-[#3170dd] focus:outline-none transition-all"
             value={newExpense.budgetId}
             onChange={(e) =>
               setNewExpense({ ...newExpense, budgetId: e.target.value })
