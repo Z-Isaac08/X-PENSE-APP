@@ -1,17 +1,38 @@
-@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900&display=swap");
+@import "tailwindcss";
+
+@custom-variant dark (&:where([data-theme=dark], [data-theme=dark] *));
 
 * {
-  margin: 0;
-  padding: 0;
-  font-family: 'Rubik', sans-serif;
+  font-family: "Rubik", sans-serif;
   box-sizing: border-box;
 }
 
-html {
+html,
+body {
   scroll-behavior: smooth;
+  background-color: var(--background-color-light);
 }
 
+html[data-theme="dark"],
+body[data-theme="dark"] {
+  background-color: var(--background-color-dark);
+}
 
-body {
-  background: hsl(190, 60%, 98%);
+:root {
+  --background-color-light: #f7fcfd;
+  --background-color-dark: #171717;
+}
+
+.bg-theme-light {
+  background-color: var(--background-color-light);
+}
+
+.bg-theme-dark {
+  background-color: var(--background-color-dark);
+}
+
+.bg-theme-light,
+.bg-theme-dark {
+  transition: background-color 0.5s ease-in-out;
 }
