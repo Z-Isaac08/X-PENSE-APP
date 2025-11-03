@@ -1,15 +1,19 @@
-import { AGENT_CONFIG } from '../../config/agentConfig';
-import type { ChatMessage } from '../../types/agent';
+import { AGENT_CONFIG } from "../../config/agentConfig";
+import type { ChatMessage } from "../../types/agent";
 
 // URL du backend proxy (local en dev, Vercel en prod)
-const API_URL = import.meta.env.DEV ? 'http://localhost:3000/api/chat' : '/api/chat';
+const API_URL = import.meta.env.DEV
+  ? "http://localhost:3000/api/chat"
+  : "/api/chat";
 
 interface GroqMessage {
-  role: 'system' | 'user' | 'assistant';
+  role: "system" | "user" | "assistant";
   content: string;
 }
 
 export class GroqClient {
+  private base = "/api/chat"; // always use server proxy
+
   constructor() {
     // Plus besoin d'initialiser Groq côté client
   }
@@ -25,15 +29,15 @@ export class GroqClient {
     try {
       // Appeler le backend proxy au lieu de Groq directement
       const response = await fetch(API_URL, {
-        method: 'POST',
+        method: "POST",
         headers: {
-          'Content-Type': 'application/json'
+          "Content-Type": "application/json",
         },
         body: JSON.stringify({
           messages,
           temperature: temperature ?? AGENT_CONFIG.temperature,
-          maxTokens: maxTokens ?? AGENT_CONFIG.maxTokens
-        })
+          maxTokens: maxTokens ?? AGENT_CONFIG.maxTokens,
+        }),
       });
 
       if (!response.ok) {
@@ -45,10 +49,10 @@ export class GroqClient {
 
       return {
         content: data.content,
-        tokensUsed: data.tokensUsed
+        tokensUsed: data.tokensUsed,
       };
     } catch (error: any) {
-      console.error('Error calling backend API:', error);
+      console.error("Error calling backend API:", error);
       throw new Error(`Failed to get response from AI: ${error.message}`);
     }
   }
@@ -57,19 +61,27 @@ export class GroqClient {
    * Convertit les messages du chat en format Groq
    */
   convertChatMessages(messages: ChatMessage[]): GroqMessage[] {
-    return messages.map(msg => ({
-      role: msg.role === 'system' ? 'system' : msg.role === 'user' ? 'user' : 'assistant',
-      content: msg.content
+    return messages.map((msg) => ({
+      role:
+        msg.role === "system"
+          ? "system"
+          : msg.role === "user"
+          ? "user"
+          : "assistant",
+      content: msg.content,
     }));
   }
 
   /**
    * Crée un message système avec le contexte
    */
-  createSystemMessage(systemPrompt: string, contextPrompt: string): GroqMessage {
+  createSystemMessage(
+    systemPrompt: string,
+    contextPrompt: string
+  ): GroqMessage {
     return {
-      role: 'system',
-      content: `${systemPrompt}\n\n${contextPrompt}`
+      role: "system",
+      content: `${systemPrompt}\n\n${contextPrompt}`,
     };
   }
 
@@ -81,19 +93,14 @@ export class GroqClient {
   }
 }
 
-// Instance singleton
-let groqClientInstance: GroqClient | null = null;
-
-export const initializeGroqClient = (): GroqClient => {
-  if (!groqClientInstance) {
-    groqClientInstance = new GroqClient();
-  }
-  return groqClientInstance;
-};
-
-export const getGroqClient = (): GroqClient => {
-  if (!groqClientInstance) {
-    groqClientInstance = initializeGroqClient();
-  }
-  return groqClientInstance;
-};
+// singleton helpers
+let instance: GroqClient | null = null;
+export function getGroqClient() {
+  if (!instance) instance = new GroqClient();
+  return instance;
+}
+export function initializeGroqClient() {
+  // no client-side key allowed — keep for compatibility but do nothing
+  if (!instance) instance = new GroqClient();
+  return instance;
+}

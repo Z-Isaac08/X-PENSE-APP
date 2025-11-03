@@ -29,7 +29,7 @@ const SettingsPage = () => {
       localStorage.setItem("groq_api_key", apiKey.trim());
 
       // Initialiser le client Groq
-      initializeGroqClient(apiKey.trim());
+      initializeGroqClient();
 
       toast.success("Clé API sauvegardée avec succès !");
     } catch (error) {
