@@ -12,7 +12,6 @@ interface GroqMessage {
 }
 
 export class GroqClient {
-  private base = "/api/chat"; // always use server proxy
 
   constructor() {
     // Plus besoin d'initialiser Groq côté client

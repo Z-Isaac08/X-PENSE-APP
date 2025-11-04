@@ -6,7 +6,7 @@ import { useIncomeStore } from '../../stores/incomeStore';
 /**
  * Construit le contexte financier complet pour l'agent IA
  */
-export const buildFinancialContext = async (userId: string): Promise<FinancialContext> => {
+export const buildFinancialContext = async (): Promise<FinancialContext> => {
   const budgetStore = useBudgetStore.getState();
   const expenseStore = useExpenseStore.getState();
   const incomeStore = useIncomeStore.getState();
