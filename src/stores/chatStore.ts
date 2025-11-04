@@ -230,9 +230,9 @@ export const useChatStore = create<ChatStore>((set, get) => ({
   },
   
   // Rafraîchir le contexte financier
-  refreshContext: async (userId: string) => {
+  refreshContext: async (_userId: string) => {
     try {
-      const context = await buildFinancialContext(userId);
+      const context = await buildFinancialContext();
       set({ financialContext: context });
     } catch (error) {
       console.error("Error refreshing context:", error);

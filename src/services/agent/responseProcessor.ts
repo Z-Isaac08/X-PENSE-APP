@@ -10,7 +10,7 @@ export const processResponse = (rawResponse: string): { formatted: FormattedMess
   
   // Nettoyer la réponse des marqueurs d'action
   let cleanedResponse = rawResponse;
-  actions.forEach(action => {
+  actions.forEach(_action => {
     const actionPattern = /\[ACTION:[^\]]+\]/g;
     cleanedResponse = cleanedResponse.replace(actionPattern, '');
   });

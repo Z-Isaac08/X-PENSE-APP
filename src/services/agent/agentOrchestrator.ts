@@ -10,14 +10,14 @@ import { SYSTEM_PROMPT, buildContextPrompt } from '../../config/agentPrompts';
  */
 export const handleUserMessage = async (
   message: string,
-  userId: string,
+  _userId: string, // Keeping for backward compatibility
   conversationHistory: ChatMessage[] = []
 ): Promise<AgentResponse> => {
   const startTime = Date.now();
 
   try {
     // 1. Construire le contexte financier
-    const financialContext = await buildFinancialContext(userId);
+    const financialContext = await buildFinancialContext();
 
     // 2. Détecter l'intention
     const intent = detectIntent(message);

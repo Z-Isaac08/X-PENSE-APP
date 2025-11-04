@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { addDoc, collection, db, deleteDoc, doc, getDocs, updateDoc } from "../firebase";
+import { addDoc, collection, db, deleteDoc, doc, getDocs } from "../firebase";
 
 export type BudgetType = 'capped' | 'tracking';
 
