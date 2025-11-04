@@ -9,7 +9,7 @@ import {
   updateDoc,
 } from "../firebase";
 
-interface NotificationInterface {
+export interface NotificationInterface {
   id: string;
   message: string;
   type: "budget" | "expense" | "income" | "alert";
@@ -50,7 +50,7 @@ interface NotificationStore {
   };
 }
 
-export const useNotificationStore = create<NotificationStore>((set, get) => ({
+export const useNotificationStore = create<NotificationStore>()((set, get) => ({
   notifications: [],
   addNotifications: async (userId, notification) => {
     try {
@@ -156,9 +156,12 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       recent: number;
     } = {
       total: notifications.length,
-      unread: notifications.filter((n: NotificationInterface) => !n.read).length,
+      unread: notifications.filter((n: NotificationInterface) => !n.read)
+        .length,
       byType: {} as Record<string, number>,
-      recent: notifications.filter((n: NotificationInterface) => new Date(n.date) >= last24Hours).length,
+      recent: notifications.filter(
+        (n: NotificationInterface) => new Date(n.date) >= last24Hours
+      ).length,
     };
 
     notifications.forEach((n: NotificationInterface) => {
@@ -168,10 +171,13 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
     return stats;
   },
 
-  getFilteredNotifications: (filter) => {
-    const { notifications } = useNotificationStore.getState();
-    
-    return notifications.filter(notification => {
+  getFilteredNotifications: (filter: {
+    type?: string;
+    read?: boolean;
+    dateRange?: { start: string; end: string };
+  }): NotificationInterface[] => {
+    const { notifications } = get();
+    return notifications.filter((notification: NotificationInterface) => {
       // Filter by type
       if (filter.type && notification.type !== filter.type) {
         return false;
@@ -184,11 +190,11 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
 
       // Filter by date range
       if (filter.dateRange) {
-        const notifDate = new Date(notification.date);
+        const notificationDate = new Date(notification.date);
         const startDate = new Date(filter.dateRange.start);
         const endDate = new Date(filter.dateRange.end);
-        
-        if (notifDate < startDate || notifDate > endDate) {
+
+        if (notificationDate < startDate || notificationDate > endDate) {
           return false;
         }
       }
@@ -200,7 +206,7 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
   markAllAsRead: async (userId) => {
     try {
       const { notifications } = useNotificationStore.getState();
-      const unreadNotifications = notifications.filter(n => !n.read);
+      const unreadNotifications = notifications.filter((n) => !n.read);
 
       const updatePromises = unreadNotifications.map(async (notification) => {
         const notificationRef = doc(
@@ -216,33 +222,40 @@ export const useNotificationStore = create<NotificationStore>((set, get) => ({
       await Promise.all(updatePromises);
 
       set((state) => ({
-        notifications: state.notifications.map(notif => ({
+        notifications: state.notifications.map((notif) => ({
           ...notif,
-          read: true
-        }))
+          read: true,
+        })),
       }));
     } catch (error) {
-      console.error("Erreur lors du marquage de toutes les notifications:", error);
+      console.error(
+        "Erreur lors du marquage de toutes les notifications:",
+        error
+      );
       throw error;
     }
   },
 
   getNotificationsByPriority: () => {
     const { notifications } = useNotificationStore.getState();
-    
+
     const critical: NotificationInterface[] = [];
     const important: NotificationInterface[] = [];
     const normal: NotificationInterface[] = [];
 
-    notifications.forEach(notification => {
+    notifications.forEach((notification) => {
       // Determine priority based on type and content
-      if (notification.type === 'alert' || 
-          notification.message.includes('Budget dépassé') ||
-          notification.message.includes('Limite atteinte')) {
+      if (
+        notification.type === "alert" ||
+        notification.message.includes("Budget dépassé") ||
+        notification.message.includes("Limite atteinte")
+      ) {
         critical.push(notification);
-      } else if (notification.type === 'expense' && 
-                 (notification.message.includes('élevée') || 
-                  notification.message.includes('augmentation'))) {
+      } else if (
+        notification.type === "expense" &&
+        (notification.message.includes("élevée") ||
+          notification.message.includes("augmentation"))
+      ) {
         important.push(notification);
       } else {
         normal.push(notification);

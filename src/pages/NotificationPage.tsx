@@ -1,23 +1,24 @@
-import { ChevronLeft, ChevronRight, Trash2, CheckCheck } from "lucide-react";
+import { CheckCheck, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
 import { useState } from "react";
 import NotificationCard from "../components/notifications/NotificationCard";
 import NotificationFilters from "../components/notifications/NotificationFilters";
 import NotificationStats from "../components/notifications/NotificationStats";
 import { useNotificationStore } from "../stores/notificationStore";
+import type { NotificationInterface } from "../stores/notificationStore";
 import { useUserStore } from "../stores/userStore";
 import { getMonthLabel, isSameMonthAndYear, parseIsoDate } from "../utils";
 
 const NotificationsPage = () => {
   const { user } = useUserStore();
-  const { 
-    notifications, 
-    markAsRead, 
+  const {
+    notifications,
+    markAsRead,
     markAllAsRead,
     removeNotifications,
     clearAllNotifications,
     getNotificationStats,
     getFilteredNotifications,
-    getNotificationsByPriority
+    getNotificationsByPriority,
   } = useNotificationStore();
 
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -50,7 +51,9 @@ const NotificationsPage = () => {
 
   const handleClearAll = async () => {
     if (!user) return;
-    if (confirm("Êtes-vous sûr de vouloir supprimer toutes les notifications ?")) {
+    if (
+      confirm("Êtes-vous sûr de vouloir supprimer toutes les notifications ?")
+    ) {
       await clearAllNotifications(user.id);
     }
   };
@@ -71,49 +74,71 @@ const NotificationsPage = () => {
   };
 
   // Get filtered notifications based on month and active filters
-  const monthFilteredNotifications = notifications.filter((notif) => {
-    const notifDate = parseIsoDate(notif.date);
-    return isSameMonthAndYear(notifDate, selectedDate);
-  });
+  const monthFilteredNotifications = notifications.filter(
+    (notif: NotificationInterface) => {
+      const notifDate = parseIsoDate(notif.date);
+      return isSameMonthAndYear(notifDate, selectedDate);
+    }
+  );
 
   // Apply additional filters
   const baseFiltered = getFilteredNotifications({
     ...activeFilter,
     dateRange: {
-      start: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).toISOString(),
-      end: new Date(selectedDate.getFullYear(), selectedDate.getMonth() + 1, 0).toISOString(),
-    }
+      start: new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth(),
+        1
+      ).toISOString(),
+      end: new Date(
+        selectedDate.getFullYear(),
+        selectedDate.getMonth() + 1,
+        0
+      ).toISOString(),
+    },
   });
 
   // Apply priority filtering if needed
   let finalNotifications = baseFiltered;
   if (activeFilter.priority) {
     const priorityGroups = getNotificationsByPriority();
-    finalNotifications = priorityGroups[activeFilter.priority as keyof typeof priorityGroups] || [];
-    finalNotifications = finalNotifications.filter(notif => 
-      baseFiltered.some(filtered => filtered.id === notif.id)
+    finalNotifications =
+      priorityGroups[activeFilter.priority as keyof typeof priorityGroups] ||
+      [];
+    finalNotifications = finalNotifications.filter(
+      (notif: NotificationInterface) =>
+        baseFiltered.some(
+          (filtered: NotificationInterface) => filtered.id === notif.id
+        )
     );
   }
 
   const sortedNotifications = finalNotifications.sort(
-    (a, b) => parseIsoDate(b.date).getTime() - parseIsoDate(a.date).getTime()
+    (a: NotificationInterface, b: NotificationInterface) =>
+      parseIsoDate(b.date).getTime() - parseIsoDate(a.date).getTime()
   );
 
   const stats = getNotificationStats();
   const monthLabel = getMonthLabel(selectedDate);
-  const unreadCount = monthFilteredNotifications.filter(n => !n.read).length;
+  const unreadCount = monthFilteredNotifications.filter((n: NotificationInterface) => !n.read).length;
 
-  const determinePriority = (notification: any) => {
-    if (notification.type === 'alert' || 
-        notification.message.includes('Budget dépassé') ||
-        notification.message.includes('Limite atteinte')) {
-      return 'critical';
-    } else if (notification.type === 'expense' && 
-               (notification.message.includes('élevée') || 
-                notification.message.includes('augmentation'))) {
-      return 'important';
+  const determinePriority = (
+    notification: NotificationInterface
+  ): "critical" | "important" | "normal" => {
+    if (
+      notification.type === "alert" ||
+      notification.message.includes("Budget dépassé") ||
+      notification.message.includes("Limite atteinte")
+    ) {
+      return "critical";
+    } else if (
+      notification.type === "expense" &&
+      (notification.message.includes("élevée") ||
+        notification.message.includes("augmentation"))
+    ) {
+      return "important";
     }
-    return 'normal';
+    return "normal";
   };
 
   return (
@@ -138,7 +163,7 @@ const NotificationsPage = () => {
           />
           {unreadCount > 0 && (
             <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-              {unreadCount} non lu{unreadCount > 1 ? 'es' : ''}
+              {unreadCount} non lu{unreadCount > 1 ? "es" : ""}
             </span>
           )}
         </div>
@@ -149,9 +174,9 @@ const NotificationsPage = () => {
             onClick={() => setShowStats(!showStats)}
             className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
-            📊 {showStats ? 'Masquer' : 'Statistiques'}
+            📊 {showStats ? "Masquer" : "Statistiques"}
           </button>
-          
+
           <button
             onClick={handleMarkAllAsRead}
             disabled={unreadCount === 0}
@@ -160,7 +185,7 @@ const NotificationsPage = () => {
             <CheckCheck size={16} />
             Tout marquer lu
           </button>
-          
+
           <button
             onClick={handleClearAll}
             disabled={monthFilteredNotifications.length === 0}
@@ -173,9 +198,7 @@ const NotificationsPage = () => {
       </div>
 
       {/* Stats */}
-      {showStats && (
-        <NotificationStats stats={stats} />
-      )}
+      {showStats && <NotificationStats stats={stats} />}
 
       {/* Filters */}
       <NotificationFilters
@@ -190,14 +213,16 @@ const NotificationsPage = () => {
           <div className="text-6xl mb-4">🔔</div>
           <h3 className="text-xl font-semibold mb-2">Aucune notification</h3>
           <p className="text-gray-500">
-            {activeFilter.type || activeFilter.read !== undefined || activeFilter.priority
+            {activeFilter.type ||
+            activeFilter.read !== undefined ||
+            activeFilter.priority
               ? "Aucune notification ne correspond aux filtres sélectionnés."
               : "Aucune notification pour ce mois."}
           </p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
-          {sortedNotifications.map((notif) => (
+          {sortedNotifications.map((notif: NotificationInterface) => (
             <NotificationCard
               key={notif.id}
               id={notif.id}
