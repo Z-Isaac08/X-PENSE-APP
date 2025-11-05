@@ -60,7 +60,13 @@ const App = () => {
           <Routes>
             <Route
               path="/"
-              element={user ? <Navigate to="/h" /> : <Navigate to="/login" />}
+              element={
+                user ? (
+                  <Navigate to="/h" replace />
+                ) : (
+                  <Navigate to="/login" replace />
+                )
+              }
             />
             <Route
               path="/login"
