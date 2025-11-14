@@ -1,8 +1,8 @@
 import { Trash } from "lucide-react";
-import { Navigate, useNavigate, useParams } from "react-router";
+import { Link, Navigate, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
-import IncomeForm from "../components/incomeForm/incomeForm";
+import IncomeForm from "../components/incomeForm/IncomeForm";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
 import { useBudgetStore } from "../stores/budgetStore";
@@ -42,9 +42,12 @@ const BudgetPage = () => {
   }
 
   // Calculs selon le type
-  const isCapped = budget.type === 'capped';
+  const isCapped = budget.type === "capped";
   const restant = isCapped ? (budget.amount || 0) + added - spent : 0;
-  const dangerClass = isCapped && restant < 0 ? "text-[#e33131] dark:text-[#e33131]" : "dark:text-neutral-100";
+  const dangerClass =
+    isCapped && restant < 0
+      ? "text-[#e33131] dark:text-[#e33131]"
+      : "dark:text-neutral-100";
 
   return (
     <main className="min-h-screen px-6 py-8 space-y-8 md:px-16 text-[#1f1f1f] dark:text-neutral-100 transition-colors duration-500">
@@ -71,7 +74,11 @@ const BudgetPage = () => {
               </p>
             </div>
             <Progressbar
-              spent={((budget.amount || 0) + added) > 0 ? (spent / ((budget.amount || 0) + added)) * 100 : 0}
+              spent={
+                (budget.amount || 0) + added > 0
+                  ? (spent / ((budget.amount || 0) + added)) * 100
+                  : 0
+              }
               state={restant > 0 ? true : false}
               even
             />
@@ -84,9 +91,13 @@ const BudgetPage = () => {
             </div>
             <div className="text-center text-sm mt-2">
               {restant > 0 ? (
-                <span className="text-green-600 dark:text-green-400">✅ Dans les limites</span>
+                <span className="text-green-600 dark:text-green-400">
+                  ✅ Dans les limites
+                </span>
               ) : (
-                <span className="text-red-600 dark:text-red-400">⚠️ Budget dépassé</span>
+                <span className="text-red-600 dark:text-red-400">
+                  ⚠️ Budget dépassé
+                </span>
               )}
             </div>
             <button
@@ -106,10 +117,8 @@ const BudgetPage = () => {
                 Catégorie de suivi
               </span>
             </div>
-            <h3 className="text-xl font-semibold">
-              {budget.name}
-            </h3>
-            
+            <h3 className="text-xl font-semibold">{budget.name}</h3>
+
             <div className="text-center py-6 bg-neutral-50 dark:bg-neutral-800 rounded-lg">
               <p className="text-5xl font-bold text-[#3170dd]">
                 {spent.toLocaleString()}
@@ -128,7 +137,8 @@ const BudgetPage = () => {
             )}
 
             <div className="text-xs text-center text-neutral-500 dark:text-neutral-400 bg-neutral-100 dark:bg-neutral-800 p-3 rounded">
-              Aucune limite fixée • Cette catégorie sert uniquement à suivre vos dépenses
+              Aucune limite fixée • Cette catégorie sert uniquement à suivre vos
+              dépenses
             </div>
 
             <button
@@ -145,12 +155,40 @@ const BudgetPage = () => {
         <IncomeForm budget={budget} />
       </div>
 
-      <div className="p-6">
-        <h2 className="text-2xl font-semibold mb-4">Transactions récentes</h2>
-        <Table
-          expenses={expenses.filter((e) => e.budget === budgetID)}
-          incomes={incomes.filter((e) => e.budget === budgetID)}
-        />
+      <div className="mt-10">
+        <h2 className="text-2xl md:text-3xl font-semibold mb-4">
+          Transactions récentes
+        </h2>
+        <div>
+          <Table
+            expenses={expenses.filter((e) => e.budget === budgetID)}
+            incomes={incomes.filter((e) => e.budget === budgetID)}
+          />
+          {(expenses.length > 10 || incomes.length > 10) && (
+            <div className="mt-4 text-center">
+              <Link
+                to="/h/transactions"
+                className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-[#3170dd] hover:text-[#1e5bbf] transition-colors duration-200 rounded-md border border-[#3170dd] hover:bg-[#f0f5ff] dark:border-[#4a8aff] dark:text-[#4a8aff] dark:hover:bg-[#1a2236]"
+              >
+                Voir toutes les transactions
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  className="w-4 h-4 ml-2"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </Link>
+            </div>
+          )}
+        </div>
       </div>
     </main>
   );

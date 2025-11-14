@@ -92,7 +92,7 @@ Pour des raisons de sécurité, la clé Groq doit être définie uniquement côt
 
 1. Dans Vercel (Project → Settings → Environment Variables) ajoutez:
 
-   - Name: GROQ_API_KEY
+   - Name:                                          
    - Value: votre_clé_groq_api
 
 2. Le frontend appelle l'endpoint serveur `/api/chat` (proxy). La clé n'est jamais incluse dans le bundle client.

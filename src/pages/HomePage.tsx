@@ -1,9 +1,9 @@
 import { Info } from "lucide-react";
 import { useEffect } from "react";
-import { Link, Navigate, useNavigate } from "react-router";
-import BudgetForm from "../components/budgetForm/budgetForm";
+import { Link, useNavigate } from "react-router";
+import BudgetForm from "../components/budgetForm/BudgetForm";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
-import IncomeForm from "../components/incomeForm/incomeForm";
+import IncomeForm from "../components/incomeForm/IncomeForm";
 import { checkMonthlyTriggers } from "../components/notifications/checkMonthlyTriggers";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
@@ -19,8 +19,22 @@ const HomePage = () => {
   const { user } = useUserStore();
   const navigate = useNavigate();
 
-  const visibleExpenses = expenses.slice(0, 5);
-  const visibleIncomes = incomes.slice(0, 5);
+  // Combiner et trier toutes les transactions par date (du plus récent au plus ancien)
+  const allTransactions = [
+    ...expenses.map((expense) => ({ ...expense, type: "expense" as const })),
+    ...incomes.map((income) => ({ ...income, type: "income" as const })),
+  ]
+    .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+    .slice(0, 5); // Prendre les 5 plus récentes
+
+  // Séparer à nouveau pour le composant Table
+  const visibleExpenses = allTransactions
+    .filter((tx) => tx.type === "expense")
+    .map(({ type, ...expense }) => expense);
+
+  const visibleIncomes = allTransactions
+    .filter((tx) => tx.type === "income")
+    .map(({ type, ...income }) => income);
 
   useEffect(() => {
     const runMonthlyCheck = async () => {
@@ -38,14 +52,14 @@ const HomePage = () => {
     };
 
     runMonthlyCheck();
-  }, [user, expenses, incomes]); // 👈 les dépendances à surveiller
+  }, [user, expenses, incomes]);
 
   const HandleBudget = (id: string) => {
     navigate(`/h/budgets/${id}`);
   };
 
   if (!user) {
-    return <Navigate to="/" />;
+    return null;
   }
 
   return (
@@ -72,9 +86,15 @@ const HomePage = () => {
       ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <BudgetForm />
-            <ExpenseForm budget={null} />
-            <IncomeForm budget={null} />
+            <div>
+              <BudgetForm />
+            </div>
+            <div>
+              <ExpenseForm budget={null} />
+            </div>
+            <div>
+              <IncomeForm budget={null} />
+            </div>
           </div>
 
           <div className="mt-10 flex flex-col gap-6">
@@ -210,17 +230,30 @@ const HomePage = () => {
             </h2>
             <div>
               <Table expenses={visibleExpenses} incomes={visibleIncomes} />
-              {expenses.length > 5 ||
-                (incomes.length > 5 && (
-                  <div className="mt-2 text-right">
-                    <Link
-                      to="/h/transactions"
-                      className="text-[#3170dd] hover:underline text-sm font-medium"
+              {(expenses.length > 5 || incomes.length > 5) && (
+                <div className="mt-4 text-center">
+                  <Link
+                    to="/h/transactions"
+                    className="inline-flex items-center justify-center px-4 py-2 text-sm font-medium text-[#3170dd] hover:text-[#1e5bbf] transition-colors duration-200 rounded-md border border-[#3170dd] hover:bg-[#f0f5ff] dark:border-[#4a8aff] dark:text-[#4a8aff] dark:hover:bg-[#1a2236]"
+                  >
+                    Voir toutes les transactions
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="w-4 h-4 ml-2"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
                     >
-                      Afficher plus de transactions →
-                    </Link>
-                  </div>
-                ))}
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M9 5l7 7-7 7"
+                      />
+                    </svg>
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         </>
