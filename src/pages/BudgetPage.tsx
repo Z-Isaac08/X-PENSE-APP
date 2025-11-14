@@ -2,7 +2,7 @@ import { Trash } from "lucide-react";
 import { Link, Navigate, useNavigate, useParams } from "react-router";
 import { toast } from "react-toastify";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
-import IncomeForm from "../components/incomeForm/IncomeForm";
+import IncomeForm from "../components/incomeForm/incomeForm";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
 import { useBudgetStore } from "../stores/budgetStore";

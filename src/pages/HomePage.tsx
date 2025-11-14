@@ -1,9 +1,9 @@
 import { Info } from "lucide-react";
 import { useEffect } from "react";
 import { Link, useNavigate } from "react-router";
-import BudgetForm from "../components/budgetForm/BudgetForm";
+import BudgetForm from "../components/budgetForm/budgetForm";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
-import IncomeForm from "../components/incomeForm/IncomeForm";
+import IncomeForm from "../components/incomeForm/incomeForm";
 import { checkMonthlyTriggers } from "../components/notifications/checkMonthlyTriggers";
 import Progressbar from "../components/progressBar/Progressbar";
 import Table from "../components/table/Table";
