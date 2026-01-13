@@ -1,11 +1,12 @@
 import { lazy, Suspense, useEffect } from "react";
+import { HelmetProvider } from "react-helmet-async";
 import { Navigate, Route, Routes } from "react-router";
 import { ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import { initializeGroqClient } from "./services/agent/groqClient";
 import { useThemeStore } from "./stores/ThemeStore";
 import { useAuthStore } from "./stores/authStore";
 import { syncUserStore } from "./stores/userStore";
-import { initializeGroqClient } from "./services/agent/groqClient";
 
 // Chargement du Layout
 import Layout from "./components/layout/Layout";
@@ -48,71 +49,73 @@ const App = () => {
   }
 
   return (
-    <main className={isDarkMode ? "bg-theme-dark" : "bg-theme-light"}>
-      <Suspense
-        fallback={
-          <div className="flex justify-center items-center min-h-screen">
-            <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#3170dd]"></div>
-          </div>
-        }
-      >
-        <Layout>
-          <Routes>
-            <Route
-              path="/"
-              element={
-                user ? (
-                  <Navigate to="/h" replace />
-                ) : (
-                  <Navigate to="/login" replace />
-                )
-              }
-            />
-            <Route
-              path="/login"
-              element={user ? <Navigate to="/h" /> : <LoginPage />}
-            />
-            <Route
-              path="/register"
-              element={user ? <Navigate to="/h" /> : <RegisterPage />}
-            />
-            <Route
-              path="/forgot-password"
-              element={user ? <Navigate to="/h" /> : <ForgotPasswordPage />}
-            />
-            <Route
-              path="/h"
-              element={user ? <HomePage /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/h/profile"
-              element={user ? <ProfilePage /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/h/budgets/:budgetID"
-              element={user ? <BudgetPage /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/h/dashboard"
-              element={user ? <DashboardPage /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/h/notifications"
-              element={user ? <NotificationPage /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/h/chat"
-              element={user ? <ChatBotPage /> : <Navigate to="/login" />}
-            />
-            <Route
-              path="/h/transactions"
-              element={user ? <TransactionPage /> : <Navigate to="/login" />}
-            />
-          </Routes>
-        </Layout>
-        <ToastContainer />
-      </Suspense>
-    </main>
+    <HelmetProvider>
+      <main className={isDarkMode ? "bg-theme-dark" : "bg-theme-light"}>
+        <Suspense
+          fallback={
+            <div className="flex justify-center items-center min-h-screen">
+              <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-[#3170dd]"></div>
+            </div>
+          }
+        >
+          <Layout>
+            <Routes>
+              <Route
+                path="/"
+                element={
+                  user ? (
+                    <Navigate to="/h" replace />
+                  ) : (
+                    <Navigate to="/login" replace />
+                  )
+                }
+              />
+              <Route
+                path="/login"
+                element={user ? <Navigate to="/h" /> : <LoginPage />}
+              />
+              <Route
+                path="/register"
+                element={user ? <Navigate to="/h" /> : <RegisterPage />}
+              />
+              <Route
+                path="/forgot-password"
+                element={user ? <Navigate to="/h" /> : <ForgotPasswordPage />}
+              />
+              <Route
+                path="/h"
+                element={user ? <HomePage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/h/profile"
+                element={user ? <ProfilePage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/h/budgets/:budgetID"
+                element={user ? <BudgetPage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/h/dashboard"
+                element={user ? <DashboardPage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/h/notifications"
+                element={user ? <NotificationPage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/h/chat"
+                element={user ? <ChatBotPage /> : <Navigate to="/login" />}
+              />
+              <Route
+                path="/h/transactions"
+                element={user ? <TransactionPage /> : <Navigate to="/login" />}
+              />
+            </Routes>
+          </Layout>
+          <ToastContainer />
+        </Suspense>
+      </main>
+    </HelmetProvider>
   );
 };
 

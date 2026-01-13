@@ -12,6 +12,8 @@ import { useExpenseStore } from "../stores/expenseStore";
 import { useIncomeStore } from "../stores/incomeStore";
 import { useUserStore } from "../stores/userStore";
 
+import SEO from "../components/SEO";
+
 const HomePage = () => {
   const { budgets } = useBudgetStore();
   const { expenses, getExpenseBudget } = useExpenseStore();
@@ -64,6 +66,10 @@ const HomePage = () => {
 
   return (
     <main className="min-h-screen px-6 py-8 text-[#1f1f1f] dark:text-neutral-100 md:px-16 transition-colors duration-500">
+      <SEO 
+        title="Tableau de bord - Xpense" 
+        description="Vue d'ensemble de vos finances personnelles, budgets et dernières transactions." 
+      />
       <h1 className="text-4xl md:text-6xl font-bold mb-8">
         Bienvenue, <span className="text-[#3170dd]">{user.name} !</span>
       </h1>

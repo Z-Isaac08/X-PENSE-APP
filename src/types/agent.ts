@@ -5,14 +5,15 @@
 // ============================================
 
 export enum IntentType {
-  QUERY_DATA = 'query_data',           // Question sur données
-  ANALYSIS = 'analysis',                // Demande d'analyse
-  ADVICE = 'advice',                    // Demande de conseil
-  PREDICTION = 'prediction',            // Demande de projection
-  ACTION_CREATE = 'action_create',      // Création de données
-  ACTION_MODIFY = 'action_modify',      // Modification de données
-  ACTION_DELETE = 'action_delete',      // Suppression de données
-  GENERAL_CHAT = 'general_chat'         // Discussion générale
+  GREETING = "greeting", // Salutations et messages de bienvenue
+  QUERY_DATA = "query_data", // Question sur données
+  ANALYSIS = "analysis", // Demande d'analyse
+  ADVICE = "advice", // Demande de conseil
+  PREDICTION = "prediction", // Demande de projection
+  ACTION_CREATE = "action_create", // Création de données
+  ACTION_MODIFY = "action_modify", // Modification de données
+  ACTION_DELETE = "action_delete", // Suppression de données
+  GENERAL_CHAT = "general_chat", // Discussion générale
 }
 
 export interface Intent {
@@ -41,13 +42,13 @@ export interface FinancialContext {
 export interface BudgetSummary {
   id: string;
   name: string;
-  type: 'capped' | 'tracking';
+  type: "capped" | "tracking";
   amount?: number;
   spent: number;
   added: number;
   remaining?: number;
   percentage?: number;
-  status: 'ok' | 'warning' | 'exceeded';
+  status: "ok" | "warning" | "exceeded";
 }
 
 export interface ExpenseSummary {
@@ -104,19 +105,19 @@ export interface MonthData {
 // ============================================
 
 export interface TrendAnalysis {
-  overall: 'increasing' | 'decreasing' | 'stable';
+  overall: "increasing" | "decreasing" | "stable";
   percentage: number;
   byCategory: Record<string, Trend>;
 }
 
 export interface Trend {
-  direction: 'up' | 'down' | 'stable';
+  direction: "up" | "down" | "stable";
   percentage: number;
   comparison: string;
 }
 
 export interface Alert {
-  type: 'warning' | 'danger' | 'info';
+  type: "warning" | "danger" | "info";
   category: string;
   message: string;
   value?: number;
@@ -141,7 +142,7 @@ export interface Prediction {
 }
 
 export interface Pattern {
-  type: 'recurring' | 'spike' | 'unusual';
+  type: "recurring" | "spike" | "unusual";
   category: string;
   description: string;
   frequency?: string;
@@ -153,13 +154,13 @@ export interface Pattern {
 // ============================================
 
 export enum ActionType {
-  CREATE_BUDGET = 'create_budget',
-  ADD_EXPENSE = 'add_expense',
-  ADD_INCOME = 'add_income',
-  MODIFY_BUDGET = 'modify_budget',
-  DELETE_BUDGET = 'delete_budget',
-  MODIFY_EXPENSE = 'modify_expense',
-  DELETE_EXPENSE = 'delete_expense'
+  CREATE_BUDGET = "create_budget",
+  ADD_EXPENSE = "add_expense",
+  ADD_INCOME = "add_income",
+  MODIFY_BUDGET = "modify_budget",
+  DELETE_BUDGET = "delete_budget",
+  MODIFY_EXPENSE = "modify_expense",
+  DELETE_EXPENSE = "delete_expense",
 }
 
 export interface Action {
@@ -168,7 +169,7 @@ export interface Action {
   parameters: Record<string, any>;
   requiresConfirmation: boolean;
   confirmationMessage: string;
-  status: 'pending' | 'confirmed' | 'cancelled' | 'executed';
+  status: "pending" | "confirmed" | "cancelled" | "executed";
 }
 
 export interface ActionResult {
@@ -203,7 +204,7 @@ export interface ActionButton {
   id: string;
   label: string;
   action: Action;
-  variant: 'primary' | 'secondary' | 'danger';
+  variant: "primary" | "secondary" | "danger";
 }
 
 // ============================================
@@ -212,7 +213,7 @@ export interface ActionButton {
 
 export interface ChatMessage {
   id: string;
-  role: 'user' | 'assistant' | 'system';
+  role: "user" | "assistant" | "system";
   content: string;
   formatted?: FormattedMessage;
   timestamp: Date;

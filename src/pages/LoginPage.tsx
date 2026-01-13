@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import Illustration from "../assets/illustration.svg";
 import { useAuthStore } from "../stores/authStore";
 
+import SEO from "../components/SEO";
+
 const LoginPage = () => {
   const { login } = useAuthStore();
   const [email, setEmail] = useState("");
@@ -79,6 +81,10 @@ const LoginPage = () => {
 
   return (
     <main className="flex md:flex-row flex-col items-center justify-center md:items-start md:justify-end md:pt-20 lg:pt-24 p-6 md:p-12 lg:p-16 h-screen overflow-hidden gap-8 lg:gap-16 text-[#1f1f1f] dark:text-neutral-100">
+      <SEO 
+        title="Connexion - Xpense" 
+        description="Connectez-vous à votre espace Xpense pour gérer votre budget." 
+      />
       <form
         onSubmit={handleSubmit}
         className="flex w-full md:w-1/2 lg:max-w-xl flex-col text-center md:text-left"

@@ -5,6 +5,8 @@ import { toast } from "react-toastify";
 import Illustration from "../assets/illustration.svg";
 import { useAuthStore } from "../stores/authStore";
 
+import SEO from "../components/SEO";
+
 const RegisterPage = () => {
   const { register } = useAuthStore();
   const [name, setName] = useState("");
@@ -102,6 +104,10 @@ const RegisterPage = () => {
 
   return (
     <main className="flex md:flex-row flex-col items-center justify-center md:items-start md:justify-start md:pt-20 lg:pt-24 p-6 md:p-12 lg:p-16 h-screen overflow-hidden gap-8 lg:gap-16 text-[#1f1f1f] dark:text-neutral-100">
+      <SEO 
+        title="Inscription - Xpense" 
+        description="Rejoignez Xpense et prenez le contrôle de vos finances dès aujourd'hui." 
+      />
       <form
         onSubmit={handleSubmit}
         className="flex w-full md:w-1/2 lg:max-w-xl flex-col text-center md:text-left"

@@ -9,13 +9,12 @@ import { generateMonthlyReport } from "../components/pdf/generateMonthlyReport";
 import { useExpenseStore } from "../stores/expenseStore";
 import { useIncomeStore } from "../stores/incomeStore";
 
+import SEO from "../components/SEO";
+
 const DashboardPage = () => {
   const { incomes } = useIncomeStore();
   const { expenses } = useExpenseStore();
   const now = new Date();
-  const isLastDay =
-    now.getDate() ===
-    new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
 
   // Initialize with current month
   const [dateRange, setDateRange] = useState<DateRange>(() => {
@@ -34,22 +33,24 @@ const DashboardPage = () => {
 
   return (
     <main className="min-h-screen px-6 py-8 text-[#1f1f1f] dark:text-neutral-100 md:px-16 transition-colors duration-500">
+      <SEO 
+        title="Analyses - Xpense" 
+        description="Analysez vos habitudes de dépenses, l'évolution de votre budget et vos tendances mensuelles." 
+      />
       <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
         <h1 className="text-4xl md:text-6xl font-bold mb-4 md:mb-0">
           Tableau de <span className="text-[#3170dd]">bord</span>
         </h1>
         
-        {isLastDay && (
-          <button
-            onClick={() => {
-              generateMonthlyReport(expenses, incomes);
-            }}
-            className="flex items-center gap-2 bg-[#3170dd] hover:bg-[#225a89] transition-all cursor-pointer text-white px-4 py-2 rounded shadow"
-          >
-            <FileDown size={18} />
-            Télécharger le rapport du mois
-          </button>
-        )}
+        <button
+          onClick={() => {
+            generateMonthlyReport(expenses, incomes);
+          }}
+          className="flex items-center gap-2 bg-[#3170dd] hover:bg-[#225a89] transition-all cursor-pointer text-white px-4 py-2 rounded shadow"
+        >
+          <FileDown size={18} />
+          Télécharger le rapport du mois
+        </button>
       </div>
 
       <DateRangeFilter

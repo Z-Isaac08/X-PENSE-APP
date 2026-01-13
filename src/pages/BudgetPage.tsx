@@ -4,6 +4,7 @@ import { toast } from "react-toastify";
 import ExpenseForm from "../components/expenseForm/ExpenseForm";
 import IncomeForm from "../components/incomeForm/incomeForm";
 import Progressbar from "../components/progressBar/Progressbar";
+import SEO from "../components/SEO";
 import Table from "../components/table/Table";
 import { useBudgetStore } from "../stores/budgetStore";
 import { useExpenseStore } from "../stores/expenseStore";
@@ -38,7 +39,12 @@ const BudgetPage = () => {
   };
 
   if (!budget) {
-    return <div className="p-8 text-lg text-center">Chargement...</div>;
+    return (
+      <>
+        <SEO title="Chargement..." description="Chargement des détails du budget." />
+        <div className="p-8 text-lg text-center">Chargement...</div>
+      </>
+    );
   }
 
   // Calculs selon le type
@@ -51,6 +57,10 @@ const BudgetPage = () => {
 
   return (
     <main className="min-h-screen px-6 py-8 space-y-8 md:px-16 text-[#1f1f1f] dark:text-neutral-100 transition-colors duration-500">
+      <SEO 
+        title={`${budget.name} - Budget`} 
+        description={`Suivi des dépenses pour le budget ${budget.name}.`} 
+      />
       <h1 className="text-4xl md:text-6xl font-bold mb-8">
         Aperçu de <span className="text-[#3170dd]">{budget.name}</span>
       </h1>

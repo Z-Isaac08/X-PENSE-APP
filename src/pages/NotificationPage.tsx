@@ -3,8 +3,8 @@ import { useState } from "react";
 import NotificationCard from "../components/notifications/NotificationCard";
 import NotificationFilters from "../components/notifications/NotificationFilters";
 import NotificationStats from "../components/notifications/NotificationStats";
-import { useNotificationStore } from "../stores/notificationStore";
 import type { NotificationInterface } from "../stores/notificationStore";
+import { useNotificationStore } from "../stores/notificationStore";
 import { useUserStore } from "../stores/userStore";
 import { getMonthLabel, isSameMonthAndYear, parseIsoDate } from "../utils";
 
@@ -93,7 +93,11 @@ const NotificationsPage = () => {
       end: new Date(
         selectedDate.getFullYear(),
         selectedDate.getMonth() + 1,
-        0
+        0,
+        23,
+        59,
+        59,
+        999
       ).toISOString(),
     },
   });
