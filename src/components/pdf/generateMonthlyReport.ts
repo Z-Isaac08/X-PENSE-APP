@@ -1,301 +1,339 @@
-import jsPDF from "jspdf";
-import autoTable, { type Styles } from "jspdf-autotable";
-import logo from "../../assets/logo.png";
-import { type ExpenseInterface } from "../../stores/expenseStore";
-import { type IncomeInterface } from "../../stores/incomeStore";
+import jsPDF from 'jspdf';
+import autoTable, { type Styles } from 'jspdf-autotable';
+import logoImage from '../../assets/logo.png';
+import { type ExpenseInterface } from '../../stores/expenseStore';
+import { type IncomeInterface } from '../../stores/incomeStore';
 
-// Couleurs du thème
+// Refined color palette - more sophisticated and cohesive
 const COLORS = {
-  primary: "#3170dd",
-  success: "#10B981",
-  danger: "#EF4444",
-  lightGray: "#F3F4F6",
-  darkGray: "#6B7280",
-  white: "#FFFFFF",
-  black: "#111827",
+  primary: '#2563EB', // Refined blue
+  primaryDark: '#1E40AF', // Darker blue for accents
+  primaryLight: '#DBEAFE', // Light blue for backgrounds
+  success: '#059669', // Refined green
+  successLight: '#D1FAE5', // Light green
+  danger: '#DC2626', // Refined red
+  dangerLight: '#FEE2E2', // Light red
+  text: '#1F2937', // Dark gray for text
+  textMuted: '#6B7280', // Muted gray
+  border: '#E5E7EB', // Light border
+  background: '#F9FAFB', // Off-white background
+  white: '#FFFFFF',
 };
 
-// Fonction utilitaire pour charger une image
-const loadImage = (src: string): Promise<HTMLImageElement> => {
-  return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.src = src;
-    img.onload = () => resolve(img);
-    img.onerror = reject;
-  });
+// Load image as Base64
+const loadImage = async (src: string): Promise<string> => {
+  try {
+    const response = await fetch(src);
+    const blob = await response.blob();
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result as string);
+      reader.onerror = reject;
+      reader.readAsDataURL(blob);
+    });
+  } catch (error) {
+    console.error('Error loading image:', error);
+    throw error;
+  }
+};
+
+// Format currency with dots
+const formatCurrency = (amount: number): string => {
+  return amount.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.');
 };
 
 export const generateMonthlyReport = async (
   expenses: ExpenseInterface[],
-  incomes: IncomeInterface[]
+  incomes: IncomeInterface[],
+  selectedMonth?: number,
+  selectedYear?: number
 ) => {
   const now = new Date();
-  const month = now.getMonth();
-  const year = now.getFullYear();
-  const monthName = now.toLocaleString("fr-FR", {
-    month: "long",
-    year: "numeric",
+  const month = selectedMonth !== undefined ? selectedMonth : now.getMonth();
+  const year = selectedYear !== undefined ? selectedYear : now.getFullYear();
+  const selectedDate = new Date(year, month, 1);
+  const monthName = selectedDate.toLocaleString('fr-FR', {
+    month: 'long',
+    year: 'numeric',
   });
+  const monthNameCapitalized = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
-  const currentMonthExpenses = expenses.filter((e) => {
+  // Filter data
+  const currentMonthExpenses = expenses.filter(e => {
     const d = new Date(e.date);
     return d.getMonth() === month && d.getFullYear() === year;
   });
 
-  const currentMonthIncomes = incomes.filter((i) => {
+  const currentMonthIncomes = incomes.filter(i => {
     const d = new Date(i.date);
     return d.getMonth() === month && d.getFullYear() === year;
   });
 
-  const totalExpenses = currentMonthExpenses.reduce(
-    (sum, e) => sum + e.amount,
-    0
-  );
-  const totalIncomes = currentMonthIncomes.reduce(
-    (sum, i) => sum + i.amount,
-    0
-  );
+  const totalExpenses = currentMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalIncomes = currentMonthIncomes.reduce((sum, i) => sum + i.amount, 0);
   const balance = totalIncomes - totalExpenses;
 
   const expenseByCategory: Record<string, number> = {};
-  currentMonthExpenses.forEach((e) => {
+  currentMonthExpenses.forEach(e => {
     expenseByCategory[e.name] = (expenseByCategory[e.name] || 0) + e.amount;
   });
 
   const incomeByCategory: Record<string, number> = {};
-  currentMonthIncomes.forEach((i) => {
+  currentMonthIncomes.forEach(i => {
     incomeByCategory[i.name] = (incomeByCategory[i.name] || 0) + i.amount;
   });
 
   const doc = new jsPDF({
-    orientation: "portrait",
-    unit: "mm",
-    format: "a4",
+    orientation: 'portrait',
+    unit: 'mm',
+    format: 'a4',
   });
 
-  // Styles pour les tableaux
+  const pageWidth = doc.internal.pageSize.width;
+  const pageHeight = doc.internal.pageSize.height;
+  const margin = 15;
+  const contentWidth = pageWidth - margin * 2;
+
+  // Refined table styles
   const tableStyles: Partial<Styles> = {
-    font: "helvetica",
-    fontSize: 10,
-    cellPadding: 3,
-    lineColor: COLORS.darkGray,
-    lineWidth: 0.2,
-    textColor: COLORS.black,
-    fontStyle: "normal",
+    font: 'helvetica',
+    fontSize: 9,
+    cellPadding: 4,
+    lineColor: COLORS.border,
+    lineWidth: 0.1,
+    textColor: COLORS.text,
     fillColor: COLORS.white,
-    halign: "left",
-    valign: "middle",
-    overflow: "linebreak",
-    cellWidth: "wrap",
-    minCellHeight: 10,
-    minCellWidth: 10,
+    halign: 'left',
+    valign: 'middle',
   };
 
   const headStyles: Partial<Styles> = {
-    fillColor: COLORS.primary,
-    textColor: COLORS.white,
-    fontStyle: "bold",
-    halign: "left",
-    font: "helvetica",
-    fontSize: 10,
-    cellPadding: 3,
-    lineColor: COLORS.darkGray,
-    lineWidth: 0.2,
-    valign: "middle",
-    overflow: "linebreak",
-    cellWidth: "wrap",
-    minCellHeight: 10,
-    minCellWidth: 10,
+    fillColor: COLORS.primaryLight,
+    textColor: COLORS.primaryDark,
+    fontStyle: 'bold',
+    fontSize: 9,
+    cellPadding: 4,
+    halign: 'left',
   };
 
-  // Fonction pour ajouter un en-tête de section
-  const addSectionHeader = (y: number, title: string): number => {
-    doc.setFillColor(COLORS.primary);
-    doc.setTextColor(COLORS.white);
-    doc.setFontSize(12);
-    doc.setFont("helvetica", "bold");
-    doc.rect(14, y, doc.internal.pageSize.width - 28, 8, "F");
-    doc.text(title, 18, y + 5.5);
-    return y + 10;
+  // Page break check
+  const checkPageBreak = (y: number, requiredSpace: number): number => {
+    if (y + requiredSpace > pageHeight - 25) {
+      doc.addPage();
+      return 20;
+    }
+    return y;
   };
 
-  // En-tête du document
+  // ========== HEADER SECTION ==========
+  // Subtle gradient-like header with rounded bottom corners
   doc.setFillColor(COLORS.primary);
-  doc.rect(0, 0, doc.internal.pageSize.width, 30, "F");
+  doc.rect(0, 0, pageWidth, 38, 'F');
 
+  // Decorative accent line
+  doc.setFillColor(COLORS.primaryDark);
+  doc.rect(0, 38, pageWidth, 2, 'F');
+
+  // Logo with white background
   try {
-    const img = await loadImage(logo);
-    doc.addImage(img, "PNG", 20, 8, 15, 15);
+    const logoDataUrl = await loadImage(logoImage);
+    doc.setFillColor(COLORS.white);
+    doc.roundedRect(margin, 10, 20, 20, 4, 4, 'F');
+    doc.addImage(logoDataUrl, 'PNG', margin + 2.5, 12.5, 15, 15);
   } catch (err) {
-    console.warn("Logo non chargé :", err);
+    console.warn('Logo non chargé :', err);
   }
 
-  // Titre du rapport
-  doc.setFontSize(20);
+  // Title
+  doc.setFontSize(22);
   doc.setTextColor(COLORS.white);
-  doc.setFont("helvetica", "bold");
-  doc.text("Rapport Mensuel", 40, 20);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Rapport Financier', margin + 26, 20);
 
-  // Sous-titre avec la période
-  doc.setFontSize(12);
+  // Month subtitle
+  doc.setFontSize(11);
+  doc.setFont('helvetica', 'normal');
+  doc.text(monthNameCapitalized, margin + 26, 28);
+
+  // Generation date on the right
+  doc.setFontSize(8);
   doc.setTextColor(COLORS.white);
-  doc.setFont("helvetica", "normal");
-  doc.text(monthName, 40, 26);
+  const generatedText = `Généré le ${now.toLocaleDateString('fr-FR', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+  })}`;
+  doc.text(generatedText, pageWidth - margin, 28, { align: 'right' });
 
-  // Date de génération
-  doc.setFontSize(10);
-  doc.setTextColor(COLORS.darkGray);
-  doc.text(
-    `Généré le ${now.toLocaleDateString("fr-FR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-      hour: "2-digit",
-      minute: "2-digit",
-    })}`,
-    14,
-    40
-  );
-
-  // Section Résumé Financier
+  // ========== SUMMARY CARDS ==========
   let y = 50;
-  y = addSectionHeader(y, "Résumé Financier");
 
-  // Cartes de résumé
-  const summaryData = [
+  // Section title
+  doc.setFontSize(12);
+  doc.setTextColor(COLORS.text);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Résumé du mois', margin, y);
+  y += 8;
+
+  const cardWidth = (contentWidth - 8) / 3;
+  const cardHeight = 28;
+  const cardData = [
     {
-      label: "Revenus Totaux",
+      label: 'Revenus',
       value: totalIncomes,
       color: COLORS.success,
+      lightColor: COLORS.successLight,
     },
     {
-      label: "Dépenses Totales",
+      label: 'Dépenses',
       value: totalExpenses,
       color: COLORS.danger,
+      lightColor: COLORS.dangerLight,
     },
     {
-      label: "Solde",
+      label: 'Solde',
       value: balance,
       color: balance >= 0 ? COLORS.success : COLORS.danger,
+      lightColor: balance >= 0 ? COLORS.successLight : COLORS.dangerLight,
     },
   ];
 
-  // Position de départ pour les cartes
-  let cardX = 14;
-  const cardWidth = (doc.internal.pageSize.width - 42) / 3; // 3 cartes avec espacement
+  cardData.forEach((card, index) => {
+    const cardX = margin + index * (cardWidth + 4);
 
-  summaryData.forEach((item, index) => {
-    if (index > 0 && index % 3 === 0) {
-      cardX = 14;
-      y += 30; // Nouvelle ligne
-    }
-
-    // Fond de la carte
+    // Card background with subtle border
     doc.setFillColor(COLORS.white);
-    doc.setDrawColor(COLORS.lightGray);
-    doc.roundedRect(cardX, y, cardWidth - 6, 25, 2, 2, "FD");
+    doc.setDrawColor(COLORS.border);
+    doc.setLineWidth(0.3);
+    doc.roundedRect(cardX, y, cardWidth, cardHeight, 3, 3, 'FD');
 
-    // Ligne de couleur en haut
-    doc.setFillColor(item.color);
-    doc.rect(cardX, y, cardWidth - 6, 3, "F");
+    // Colored accent on left side
+    doc.setFillColor(card.color);
+    doc.roundedRect(cardX, y, 3, cardHeight, 3, 0, 'F');
+    doc.rect(cardX + 1.5, y, 1.5, cardHeight, 'F'); // Fill the right edge of the rounded part
 
-    // Texte
-    doc.setTextColor(COLORS.darkGray);
-    doc.setFontSize(10);
-    doc.text(item.label, cardX + 8, y + 12);
+    // Label
+    doc.setFontSize(9);
+    doc.setTextColor(COLORS.textMuted);
+    doc.setFont('helvetica', 'normal');
+    doc.text(card.label, cardX + 10, y + 10);
 
-    // Montant
+    // Value
     doc.setFontSize(14);
-    doc.setFont("helvetica", "bold");
-    doc.setTextColor(COLORS.black);
-    doc.text(`${item.value.toLocaleString("fr-FR")} FCFA`, cardX + 8, y + 20);
-
-    cardX += cardWidth - 3;
+    doc.setTextColor(card.color);
+    doc.setFont('helvetica', 'bold');
+    doc.text(`${formatCurrency(card.value)} FCFA`, cardX + 10, y + 20);
   });
 
-  // Section Dépenses par catégorie
-  y += 35;
-  y = addSectionHeader(y, "Dépenses par Catégorie");
+  y += cardHeight + 15;
+
+  // ========== EXPENSES TABLE ==========
+  y = checkPageBreak(y, 40);
+
+  // Section header with icon-like decoration
+  doc.setFillColor(COLORS.dangerLight);
+  doc.roundedRect(margin, y, contentWidth, 10, 2, 2, 'F');
+  doc.setFontSize(10);
+  doc.setTextColor(COLORS.danger);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Dépenses par catégorie', margin + 4, y + 7);
+  y += 14;
 
   if (Object.keys(expenseByCategory).length > 0) {
+    const expenseData = Object.entries(expenseByCategory)
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, val]) => [cat, `${formatCurrency(val)} FCFA`]);
+
     autoTable(doc, {
       startY: y,
-      head: [["Catégorie", "Montant"]],
-      body: Object.entries(expenseByCategory).map(([cat, val]) => [
-        cat,
-        {
-          content: `${val.toLocaleString("fr-FR")} FCFA`,
-          styles: { halign: "right" },
-        },
-      ]),
+      head: [['Catégorie', 'Montant']],
+      body: expenseData,
       styles: tableStyles,
-      headStyles: { ...headStyles, fillColor: COLORS.danger },
-      didDrawPage: (data) => {
+      headStyles: { ...headStyles, fillColor: COLORS.dangerLight, textColor: COLORS.danger },
+      columnStyles: {
+        0: { cellWidth: contentWidth * 0.65 },
+        1: { cellWidth: contentWidth * 0.35, halign: 'right' },
+      },
+      alternateRowStyles: { fillColor: COLORS.background },
+      margin: { left: margin, right: margin },
+      didDrawPage: data => {
         y = data.cursor?.y || y + 10;
       },
     });
+    y = (doc as jsPDF & { lastAutoTable: { finalY: number } }).lastAutoTable?.finalY || y;
   } else {
-    doc.setFontSize(10);
-    doc.setTextColor(COLORS.darkGray);
-    doc.text("Aucune dépense ce mois-ci", 20, y + 5);
-    y += 10;
+    doc.setFontSize(9);
+    doc.setTextColor(COLORS.textMuted);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Aucune dépense enregistrée ce mois-ci', margin + 4, y + 5);
+    y += 12;
   }
 
-  // Section Revenus par catégorie
-  y += 10;
-  y = addSectionHeader(y, "Revenus par Catégorie");
+  y += 12;
+
+  // ========== INCOMES TABLE ==========
+  y = checkPageBreak(y, 40);
+
+  // Section header
+  doc.setFillColor(COLORS.successLight);
+  doc.roundedRect(margin, y, contentWidth, 10, 2, 2, 'F');
+  doc.setFontSize(10);
+  doc.setTextColor(COLORS.success);
+  doc.setFont('helvetica', 'bold');
+  doc.text('Revenus par catégorie', margin + 4, y + 7);
+  y += 14;
 
   if (Object.keys(incomeByCategory).length > 0) {
+    const incomeData = Object.entries(incomeByCategory)
+      .sort((a, b) => b[1] - a[1])
+      .map(([cat, val]) => [cat, `${formatCurrency(val)} FCFA`]);
+
     autoTable(doc, {
       startY: y,
-      head: [["Catégorie", "Montant"]],
-      body: Object.entries(incomeByCategory).map(([cat, val]) => [
-        cat,
-        {
-          content: `${val.toLocaleString("fr-FR")} FCFA`,
-          styles: { halign: "right" },
-        },
-      ]),
+      head: [['Catégorie', 'Montant']],
+      body: incomeData,
       styles: tableStyles,
-      headStyles: { ...headStyles, fillColor: COLORS.success },
-      didDrawPage: (data) => {
+      headStyles: { ...headStyles, fillColor: COLORS.successLight, textColor: COLORS.success },
+      columnStyles: {
+        0: { cellWidth: contentWidth * 0.65 },
+        1: { cellWidth: contentWidth * 0.35, halign: 'right' },
+      },
+      alternateRowStyles: { fillColor: COLORS.background },
+      margin: { left: margin, right: margin },
+      didDrawPage: data => {
         y = data.cursor?.y || y + 10;
       },
     });
   } else {
-    doc.setFontSize(10);
-    doc.setTextColor(COLORS.darkGray);
-    doc.text("Aucun revenu ce mois-ci", 20, y + 5);
-    y += 10;
+    doc.setFontSize(9);
+    doc.setTextColor(COLORS.textMuted);
+    doc.setFont('helvetica', 'italic');
+    doc.text('Aucun revenu enregistré ce mois-ci', margin + 4, y + 5);
   }
 
-  // Pied de page
+  // ========== FOOTER ==========
   const pageCount = doc.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
 
-    // Ligne de séparation
-    doc.setDrawColor(COLORS.lightGray);
+    // Footer line
+    doc.setDrawColor(COLORS.border);
     doc.setLineWidth(0.5);
-    doc.line(14, 283, doc.internal.pageSize.width - 14, 283);
-
-    // Numéro de page
-    doc.setFontSize(8);
-    doc.setTextColor(COLORS.darkGray);
-    doc.text(
-      `Page ${i} sur ${pageCount}`,
-      doc.internal.pageSize.width - 25,
-      290,
-      { align: "right" }
-    );
+    doc.line(margin, pageHeight - 15, pageWidth - margin, pageHeight - 15);
 
     // Copyright
+    doc.setFontSize(7);
+    doc.setTextColor(COLORS.textMuted);
+    doc.setFont('helvetica', 'normal');
     doc.text(
-      `© ${new Date().getFullYear()} Xpense - Tous droits réservés`,
-      doc.internal.pageSize.width / 2,
-      290,
-      { align: "center" }
+      `© ${new Date().getFullYear()} Xpense — Votre gestionnaire financier`,
+      pageWidth / 2,
+      pageHeight - 10,
+      { align: 'center' }
     );
+
+    // Page number
+    doc.text(`${i} / ${pageCount}`, pageWidth - margin, pageHeight - 10, { align: 'right' });
   }
 
   doc.save(`rapport-${monthName}.pdf`);
