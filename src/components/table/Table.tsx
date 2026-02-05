@@ -1,14 +1,11 @@
-import { Trash } from "lucide-react";
-import { toast } from "react-toastify";
-import { useBudgetStore } from "../../stores/budgetStore";
-import {
-  useExpenseStore,
-  type ExpenseInterface,
-} from "../../stores/expenseStore";
+import { Trash } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { useBudgetStore } from '../../stores/budgetStore';
+import { useExpenseStore, type ExpenseInterface } from '../../stores/expenseStore';
 
-import { useIncomeStore, type IncomeInterface } from "../../stores/incomeStore";
-import { useUserStore } from "../../stores/userStore";
-import { formatDateDisplay } from "../../utils";
+import { useIncomeStore, type IncomeInterface } from '../../stores/incomeStore';
+import { useUserStore } from '../../stores/userStore';
+import { formatCurrency, formatDateDisplay } from '../../utils';
 
 interface TableProps {
   expenses: ExpenseInterface[];
@@ -17,20 +14,15 @@ interface TableProps {
   showActions?: boolean;
 }
 
-const Table = ({
-  expenses,
-  incomes,
-  showCategory = true,
-  showActions = true
-}: TableProps) => {
+const Table = ({ expenses, incomes, showCategory = true, showActions = true }: TableProps) => {
   const { deleteExpense } = useExpenseStore();
   const { deleteIncome } = useIncomeStore();
   const { getBudgetById } = useBudgetStore();
   const { user } = useUserStore();
 
   const transactions = [
-    ...expenses.map((e) => ({ ...e, type: "expense" } as const)),
-    ...incomes.map((i) => ({ ...i, type: "income" } as const)),
+    ...expenses.map(e => ({ ...e, type: 'expense' }) as const),
+    ...incomes.map(i => ({ ...i, type: 'income' }) as const),
   ];
 
   const sortedTransactions = [...transactions].sort((a, b) => {
@@ -39,18 +31,18 @@ const Table = ({
 
   const handleDelete = async (id: string, type: 'expense' | 'income') => {
     if (!user) return;
-    
+
     try {
-      if (type === "expense") {
+      if (type === 'expense') {
         await deleteExpense(user.id, id);
-        toast.success("Dépense supprimée");
+        toast.success('Dépense supprimée');
       } else {
         await deleteIncome(user.id, id);
-        toast.success("Revenu supprimé");
+        toast.success('Revenu supprimé');
       }
     } catch (error) {
-      console.error("Erreur lors de la suppression:", error);
-      toast.error("Échec lors de la suppression");
+      console.error('Erreur lors de la suppression:', error);
+      toast.error('Échec lors de la suppression');
     }
   };
 
@@ -68,7 +60,7 @@ const Table = ({
           </tr>
         </thead>
         <tbody>
-          {sortedTransactions.map((transaction) => {
+          {sortedTransactions.map(transaction => {
             const budget = getBudgetById(transaction.budget || '');
             return (
               <tr
@@ -76,24 +68,24 @@ const Table = ({
                 className="border-b border-gray-200 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-800"
               >
                 <td className="px-4 py-3">{transaction.name}</td>
-                <td className={`px-4 py-3 font-medium ${transaction.type === 'expense' ? 'text-gray-900 dark:text-gray-100' : 'text-blue-600 dark:text-blue-400'}`}>
-                  {transaction.type === 'expense' ? '-' : '+'} {transaction.amount.toFixed(0)} FCFA
+                <td
+                  className={`px-4 py-3 font-medium ${transaction.type === 'expense' ? 'text-gray-900 dark:text-gray-100' : 'text-blue-600 dark:text-blue-400'}`}
+                >
+                  {transaction.type === 'expense' ? '-' : '+'} {formatCurrency(transaction.amount)}
                 </td>
-                {showCategory && (
-                  <td className="px-4 py-3">
-                    {budget?.name || 'Non catégorisé'}
-                  </td>
-                )}
+                {showCategory && <td className="px-4 py-3">{budget?.name || 'Non catégorisé'}</td>}
                 <td className="px-4 py-3 whitespace-nowrap">
                   {formatDateDisplay(transaction.date)}
                 </td>
                 <td className="px-4 py-3">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                    transaction.type === 'expense' 
-                      ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200' 
-                      : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
-                  }`}>
-                    {transaction.type === "expense" ? "Dépense" : "Revenu"}
+                  <span
+                    className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                      transaction.type === 'expense'
+                        ? 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-200'
+                        : 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400'
+                    }`}
+                  >
+                    {transaction.type === 'expense' ? 'Dépense' : 'Revenu'}
                   </span>
                 </td>
                 {showActions && (

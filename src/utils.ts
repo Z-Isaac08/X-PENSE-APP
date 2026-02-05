@@ -1,10 +1,10 @@
 // ✅ Format d'affichage "30 juin 2025"
 export function formatDateDisplay(date: Date | string | number): string {
   const d = new Date(date);
-  return d.toLocaleString("fr-FR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
+  return d.toLocaleString('fr-FR', {
+    day: '2-digit',
+    month: 'long',
+    year: 'numeric',
   });
 }
 
@@ -12,13 +12,12 @@ export function formatDateDisplay(date: Date | string | number): string {
 export function getMonthLabel(date: Date | string): string {
   const d = new Date(date);
   return capitalizeFirstLetter(
-    d.toLocaleString("fr-FR", {
-      month: "long",
-      year: "numeric",
+    d.toLocaleString('fr-FR', {
+      month: 'long',
+      year: 'numeric',
     })
   );
 }
-
 
 // ✅ Pour parser une string '2025-06-30' (par exemple depuis un input ou Firestore string brute)
 export function parseIsoDate(isoString: string): Date {
@@ -27,21 +26,37 @@ export function parseIsoDate(isoString: string): Date {
 
 // ✅ Pour comparer facilement les mois/années
 export function isSameMonthAndYear(d1: Date, d2: Date): boolean {
-  return (
-    d1.getFullYear() === d2.getFullYear() &&
-    d1.getMonth() === d2.getMonth()
-  );
+  return d1.getFullYear() === d2.getFullYear() && d1.getMonth() === d2.getMonth();
 }
 
 // 🔠 Capitalisation
 export function capitalizeFirstLetter(str: string): string {
-  if (typeof str !== "string" || str.length === 0) return "";
+  if (typeof str !== 'string' || str.length === 0) return '';
   return str.charAt(0).toUpperCase() + str.slice(1).toLowerCase();
 }
 
 // 💰 Currency formatting
 export function formatCurrency(amount: number): string {
-  return `${amount.toLocaleString("fr-FR")} FCFA`;
+  // Remplacer les espaces insécables par des points (pour fr-FR toLocaleString)
+  return `${amount.toLocaleString('fr-FR').replace(/\u00a0/g, '.')} FCFA`;
+}
+
+/**
+ * Format d'affichage pour les champs de saisie (ajoute les points)
+ */
+export function formatAmountInput(value: string): string {
+  // Supprimer tout ce qui n'est pas un chiffre
+  const rawValue = value.replace(/\D/g, '');
+  if (!rawValue) return '';
+  // Formater avec des points
+  return rawValue.replace(/\B(?=(\d{3})+(?!\d))/g, '.');
+}
+
+/**
+ * Nettoie la valeur formatée pour obtenir un nombre pur
+ */
+export function cleanAmountInput(value: string): number {
+  return parseFloat(value.replace(/\./g, '')) || 0;
 }
 
 // 📊 Percentage formatting

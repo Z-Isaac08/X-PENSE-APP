@@ -1,9 +1,8 @@
 import { FileDown } from 'lucide-react';
 import { useState } from 'react';
 import { KPICardsContainer } from '../components/dashboard/cards/KPICardsContainer';
-import DateRangeFilter, { type DateRange } from '../components/dashboard/filters/DateRangeFilter';
-import BudgetEvolutionChart from '../components/dashboard/graphics/BudgetEvolutionChart';
 import CategorySpendingChart from '../components/dashboard/graphics/CategorySpendingChart';
+import DailySpendingChart from '../components/dashboard/graphics/DailySpendingChart';
 import MonthlyTrendsChart from '../components/dashboard/graphics/MonthlyTrendsChart';
 import { generateMonthlyReport } from '../components/pdf/generateMonthlyReport';
 import { useExpenseStore } from '../stores/expenseStore';
@@ -16,24 +15,9 @@ const DashboardPage = () => {
   const { expenses } = useExpenseStore();
   const now = new Date();
 
-  // Initialize with current month
-  const [dateRange, setDateRange] = useState<DateRange>(() => {
-    const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
-    const endOfMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0);
-    return {
-      startDate: startOfMonth.toISOString().split('T')[0],
-      endDate: endOfMonth.toISOString().split('T')[0],
-      preset: 'current_month',
-    };
-  });
-
   // State for PDF report month selection
   const [selectedPdfMonth, setSelectedPdfMonth] = useState<number>(now.getMonth());
   const [selectedPdfYear, setSelectedPdfYear] = useState<number>(now.getFullYear());
-
-  const handleDateRangeChange = (newRange: DateRange) => {
-    setDateRange(newRange);
-  };
 
   // Generate list of available months (last 12 months + current)
   const getAvailableMonths = () => {
@@ -104,14 +88,12 @@ const DashboardPage = () => {
         </div>
       </div>
 
-      <DateRangeFilter currentRange={dateRange} onDateRangeChange={handleDateRangeChange} />
-
       <KPICardsContainer />
       <div className="mt-8 flex md:flex-row flex-col gap-4 items-center">
         <MonthlyTrendsChart />
         <CategorySpendingChart />
       </div>
-      <BudgetEvolutionChart />
+      <DailySpendingChart />
     </main>
   );
 };

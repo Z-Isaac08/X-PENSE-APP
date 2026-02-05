@@ -1,21 +1,18 @@
-import { create } from "zustand";
-import { addDoc, collection, db, deleteDoc, doc, getDocs } from "../firebase";
+import { create } from 'zustand';
+import { addDoc, collection, db, deleteDoc, doc, getDocs } from '../firebase';
 
-export type BudgetType = 'capped' | 'tracking';
+export type BudgetType = 'capped' | 'tracking' | 'savings';
 
 export interface BudgetInterface {
   id: string;
   name: string;
   type: BudgetType;
-  amount?: number; // Optionnel - requis seulement si type = 'capped'
+  amount?: number; // Optionnel - requis seulement si type = 'capped' ou 'savings'
 }
 
 interface BudgetStore {
   budgets: BudgetInterface[];
-  addBudget: (
-    userId: string,
-    budget: Omit<BudgetInterface, "id">
-  ) => Promise<void>;
+  addBudget: (userId: string, budget: Omit<BudgetInterface, 'id'>) => Promise<void>;
   getAllBudgets: (userId: string) => Promise<void>;
   deleteBudget: (userId: string, budgetId: string) => Promise<void>;
   deleteAllBudgets: (userId: string) => Promise<void>;
@@ -28,14 +25,17 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
 
   addBudget: async (userId, budget) => {
     try {
-      // Validation : si type = 'capped', amount doit être fourni
-      if (budget.type === 'capped' && (budget.amount === undefined || budget.amount === null)) {
-        throw new Error("Le montant est obligatoire pour un budget plafonné");
+      // Validation : si type = 'capped' ou 'savings', amount doit être fourni
+      if (
+        (budget.type === 'capped' || budget.type === 'savings') &&
+        (budget.amount === undefined || budget.amount === null)
+      ) {
+        throw new Error("Le montant est obligatoire pour un budget plafonné ou d'épargne");
       }
 
-      const budgetsRef = collection(db, "users", userId, "budgets");
+      const budgetsRef = collection(db, 'users', userId, 'budgets');
       const budgetData: any = {
-        name: budget.name || "",
+        name: budget.name || '',
         type: budget.type || 'capped',
       };
 
@@ -46,7 +46,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
 
       const docRef = await addDoc(budgetsRef, budgetData);
 
-      set((state) => ({
+      set(state => ({
         budgets: [...state.budgets, { ...budget, id: docRef.id }],
       }));
     } catch (error) {
@@ -55,69 +55,65 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
     }
   },
 
-  getAllBudgets: async (userId) => {
+  getAllBudgets: async userId => {
     try {
-      const budgetsSnapshot = await getDocs(
-        collection(db, "users", userId, "budgets")
-      );
-      const budgets = budgetsSnapshot.docs.map((doc) => {
+      const budgetsSnapshot = await getDocs(collection(db, 'users', userId, 'budgets'));
+      const budgets = budgetsSnapshot.docs.map(doc => {
         const data = doc.data();
-        
+
         // Migration automatique : si pas de type, considérer comme 'capped'
         const type: BudgetType = data.type || 'capped';
-        
+
         return {
           id: doc.id,
-          name: data.name || "",
+          name: data.name || '',
           type: type,
           amount: data.amount !== undefined ? Number(data.amount) : undefined,
         };
       });
       set({ budgets });
     } catch (error) {
-      console.error("Erreur lors du chargement des budgets:", error);
+      console.error('Erreur lors du chargement des budgets:', error);
     }
   },
 
   deleteBudget: async (userId, budgetId) => {
     try {
-      const docRef = doc(db, "users", userId, "budgets", budgetId);
+      const docRef = doc(db, 'users', userId, 'budgets', budgetId);
       await deleteDoc(docRef);
 
-      set((state) => ({
-        budgets: state.budgets.filter((budget) => budget.id !== budgetId),
+      set(state => ({
+        budgets: state.budgets.filter(budget => budget.id !== budgetId),
       }));
     } catch (error) {
-      console.error("Erreur lors de la suppression du budget:", error);
+      console.error('Erreur lors de la suppression du budget:', error);
       throw error;
     }
   },
 
-  deleteAllBudgets: async (userId) => {
+  deleteAllBudgets: async userId => {
     try {
-      const budgetsSnapshot = await getDocs(
-        collection(db, "users", userId, "budgets")
-      );
-      const batchPromises = budgetsSnapshot.docs.map((docItem) =>
-        deleteDoc(doc(db, "users", userId, "budgets", docItem.id))
+      const budgetsSnapshot = await getDocs(collection(db, 'users', userId, 'budgets'));
+      const batchPromises = budgetsSnapshot.docs.map(docItem =>
+        deleteDoc(doc(db, 'users', userId, 'budgets', docItem.id))
       );
 
       await Promise.all(batchPromises);
 
       set({ budgets: [] });
     } catch (error) {
-      console.error("Erreur lors de la suppression de tous les budgets:", error);
-      throw new Error("Erreur lors de la suppression de tous les budgets");
+      console.error('Erreur lors de la suppression de tous les budgets:', error);
+      throw new Error('Erreur lors de la suppression de tous les budgets');
     }
   },
 
-  getBudgetById: (budgetId) => {
+  getBudgetById: budgetId => {
     const allBudgets = get().budgets;
-    return allBudgets.find((budget) => budget.id === budgetId) || null;
+    return allBudgets.find(budget => budget.id === budgetId) || null;
   },
 
   verifyBudgetName: () => {
     const allBudgets = get().budgets;
-    return allBudgets.map((budget) => budget.name);
+    return allBudgets.map(budget => budget.name);
   },
 }));
