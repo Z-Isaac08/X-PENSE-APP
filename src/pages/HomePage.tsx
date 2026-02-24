@@ -72,51 +72,53 @@ const HomePage = () => {
         title="Tableau de bord - Xpense"
         description="Vue d'ensemble de vos finances personnelles, budgets et dernières transactions."
       />
-      <h1 className="text-4xl md:text-6xl font-bold mb-8">
+      <h1 className="text-4xl md:text-6xl font-extrabold mb-10 tracking-tight">
         Bienvenue, <span className="text-[#3170dd]">{user.name} !</span>
       </h1>
       {budgets.length === 0 ? (
-        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-8">
-          <div className="text-center space-y-4">
-            <h2 className="text-2xl md:text-3xl font-semibold text-neutral-700 dark:text-neutral-300">
-              Aucun budget pour le moment
+        <div className="flex flex-col items-center justify-center min-h-[60vh] gap-10 px-4">
+          <div className="text-center space-y-6">
+            <h2 className="text-3xl md:text-4xl font-bold text-neutral-800 dark:text-neutral-100">
+              Prêt à économiser ?
             </h2>
-            <p className="text-base md:text-lg text-neutral-600 dark:text-neutral-400 max-w-md">
-              Commencez par créer votre premier budget pour suivre vos dépenses et optimiser votre
-              gestion financière.
+            <p className="text-lg md:text-xl text-neutral-600 dark:text-neutral-400 max-w-lg mx-auto leading-relaxed">
+              Créez votre premier budget en quelques secondes pour reprendre le contrôle de vos
+              finances.
             </p>
           </div>
-          <div className="w-full max-w-md">
+          <div className="w-full max-w-lg">
             <BudgetForm />
           </div>
         </div>
       ) : (
         <>
           {/* Section Configuration Budgets */}
-          <div className="mb-10 bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden transition-all duration-300">
+          <div className="mb-12 bg-white dark:bg-neutral-900 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm overflow-hidden transition-all duration-300">
             <button
               onClick={() => setShowBudgetForm(!showBudgetForm)}
-              className="w-full px-6 py-4 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
+              className="w-full px-6 py-5 flex items-center justify-between hover:bg-neutral-50 dark:hover:bg-neutral-800/50 transition-colors"
             >
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-lg">
-                  <Settings size={20} />
+              <div className="flex items-center gap-4">
+                <div className="p-3 bg-blue-50 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 rounded-xl">
+                  <Settings size={22} />
                 </div>
                 <div className="text-left">
-                  <h2 className="text-lg font-semibold">Gestion des catégories</h2>
-                  <p className="text-sm text-neutral-500">
+                  <h2 className="lg:text-xl text-lg font-bold">Gestion des catégories</h2>
+                  <p className="text-sm text-neutral-500 hidden sm:block">
                     Configurez vos plafonds et objectifs d'épargne
                   </p>
                 </div>
               </div>
-              <div className="flex items-center gap-2 text-[#3170dd] font-medium">
-                <span>{showBudgetForm ? 'Fermer' : 'Nouvelle catégorie'}</span>
-                {showBudgetForm ? <ChevronUp size={20} /> : <Plus size={20} />}
+              <div className="flex items-center gap-2 text-[#3170dd] font-bold">
+                <span className="hidden sm:inline">
+                  {showBudgetForm ? 'Fermer' : 'Nouvelle catégorie'}
+                </span>
+                {showBudgetForm ? <ChevronUp size={24} /> : <Plus size={24} />}
               </div>
             </button>
 
             {showBudgetForm && (
-              <div className="px-8 pt-6 pb-10 border-t border-neutral-100 dark:border-neutral-800 animate-in fade-in slide-in-from-top-2 duration-300">
+              <div className="px-6 sm:px-10 py-10 border-t border-neutral-100 dark:border-neutral-800 animate-in fade-in slide-in-from-top-2 duration-300">
                 <div className="max-w-2xl mx-auto">
                   <BudgetForm standalone={false} onSuccess={() => setShowBudgetForm(false)} />
                 </div>
@@ -125,7 +127,7 @@ const HomePage = () => {
           </div>
 
           {/* Actions Quotidiennes */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="h-full">
               <ExpenseForm budget={null} />
             </div>
@@ -134,9 +136,9 @@ const HomePage = () => {
             </div>
           </div>
 
-          <div className="mt-10 flex flex-col gap-6">
-            <h2 className="text-2xl md:text-3xl font-semibold">Catégories récentes</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          <div className="mt-16 flex flex-col gap-8">
+            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Vos catégories</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {budgets.map((budget, index) => {
                 const spent = getExpenseBudget(budget.id);
                 const added = getIncomeBudget(budget.id);

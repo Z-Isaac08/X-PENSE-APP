@@ -1,3 +1,4 @@
+import { Calendar } from 'lucide-react';
 import {
   CartesianGrid,
   Line,
@@ -40,9 +41,11 @@ const DailySpendingChart = () => {
         <h2 className="text-xl font-semibold mb-4">Évolution quotidienne ({monthName})</h2>
 
         {dailyData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center h-64 text-center">
-            <div className="text-gray-400 mb-2">📅</div>
-            <p className="text-gray-500 font-medium">Aucune donnée ce mois-ci</p>
+          <div className="flex flex-col items-center justify-center h-64 text-center text-neutral-400 dark:text-neutral-500">
+            <div className="mb-4">
+              <Calendar size={48} strokeWidth={1.5} />
+            </div>
+            <p className="font-medium">Aucune donnée ce mois-ci</p>
           </div>
         ) : (
           <ResponsiveContainer width="100%" height={350}>

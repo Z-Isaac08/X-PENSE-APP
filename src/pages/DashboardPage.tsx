@@ -34,10 +34,6 @@ const DashboardPage = () => {
   };
 
   const availableMonths = getAvailableMonths();
-  const selectedMonthLabel = new Date(selectedPdfYear, selectedPdfMonth, 1).toLocaleString(
-    'fr-FR',
-    { month: 'long', year: 'numeric' }
-  );
 
   return (
     <main className="min-h-screen px-6 py-8 text-[#1f1f1f] dark:text-neutral-100 md:px-16 transition-colors duration-500">
@@ -45,12 +41,12 @@ const DashboardPage = () => {
         title="Analyses - Xpense"
         description="Analysez vos habitudes de dépenses, l'évolution de votre budget et vos tendances mensuelles."
       />
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between mb-8">
-        <h1 className="text-4xl md:text-6xl font-bold mb-4 md:mb-0">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between mb-8 gap-6">
+        <h1 className="text-4xl md:text-6xl font-bold">
           Tableau de <span className="text-[#3170dd]">bord</span>
         </h1>
 
-        <div className="flex flex-col md:flex-row gap-2 md:items-center">
+        <div className="flex flex-col sm:flex-row gap-3 sm:items-center w-full lg:w-auto">
           {/* Month selector */}
           <select
             value={`${selectedPdfYear}-${selectedPdfMonth}`}
@@ -59,7 +55,7 @@ const DashboardPage = () => {
               setSelectedPdfYear(Number(year));
               setSelectedPdfMonth(Number(month));
             }}
-            className="px-3 py-2 rounded border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-[#1f1f1f] dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-[#3170dd]"
+            className="w-full sm:w-auto px-4 py-2.5 rounded-xl border border-neutral-200 dark:border-neutral-700 bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 focus:outline-none focus:ring-2 focus:ring-[#3170dd] appearance-none cursor-pointer transition-all"
           >
             {availableMonths.map(({ month, year, label }) => (
               <option key={`${year}-${month}`} value={`${year}-${month}`}>
@@ -73,27 +69,28 @@ const DashboardPage = () => {
             onClick={() => {
               generateMonthlyReport(expenses, incomes, selectedPdfMonth, selectedPdfYear);
             }}
-            className="flex items-center gap-2 bg-[#3170dd] hover:bg-[#225a89] transition-all cursor-pointer text-white px-4 py-2 rounded shadow whitespace-nowrap"
+            className="w-full sm:w-auto flex items-center justify-center gap-2 bg-[#3170dd] hover:bg-[#225a89] transition-all cursor-pointer text-white px-6 py-2.5 rounded-xl shadow-sm whitespace-nowrap font-medium"
           >
-            <FileDown size={18} />
-            Télécharger{' '}
-            {selectedMonthLabel ===
-            new Date(now.getFullYear(), now.getMonth(), 1).toLocaleString('fr-FR', {
-              month: 'long',
-              year: 'numeric',
-            })
-              ? 'le rapport du mois'
-              : selectedMonthLabel}
+            <FileDown size={20} />
+            Télécharger le rapport
           </button>
         </div>
       </div>
 
       <KPICardsContainer />
-      <div className="mt-8 flex md:flex-row flex-col gap-4 items-center">
-        <MonthlyTrendsChart />
-        <CategorySpendingChart />
+
+      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
+        <div className="w-full bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+          <MonthlyTrendsChart />
+        </div>
+        <div className="w-full bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+          <CategorySpendingChart />
+        </div>
       </div>
-      <DailySpendingChart />
+
+      <div className="mt-6 w-full bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <DailySpendingChart />
+      </div>
     </main>
   );
 };
