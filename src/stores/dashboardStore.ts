@@ -208,25 +208,37 @@ export const useDashboardStore = create<DashboardStore>(() => ({
   getBudgetUtilizationRate: () => {
     const budgets = useBudgetStore.getState().budgets;
     const expenses = useExpenseStore.getState().expenses;
+    const incomes = useIncomeStore.getState().incomes;
 
     if (budgets.length === 0) return 0;
 
     let totalBudget = 0;
-    let totalSpent = 0;
+    let totalProgress = 0;
 
     budgets.forEach(budget => {
-      // Compter seulement les budgets plafonnés pour le taux d'utilisation
+      // Budgets plafonnés : taux de consommation
       if (budget.type === 'capped' && budget.amount) {
         totalBudget += budget.amount;
         const budgetExpenses = expenses
           .filter(exp => exp.budget === budget.id)
           .reduce((sum, exp) => sum + exp.amount, 0);
-        totalSpent += budgetExpenses;
+        totalProgress += budgetExpenses;
+      }
+      // Budgets épargne : taux de progression vers l'objectif
+      if (budget.type === 'savings' && budget.amount) {
+        totalBudget += budget.amount;
+        const savedIncomes = incomes
+          .filter(inc => inc.budget === budget.id)
+          .reduce((sum, inc) => sum + inc.amount, 0);
+        const savedExpenses = expenses
+          .filter(exp => exp.budget === budget.id)
+          .reduce((sum, exp) => sum + exp.amount, 0);
+        totalProgress += Math.max(0, savedIncomes - savedExpenses);
       }
     });
 
     if (totalBudget === 0) return 0;
-    return (totalSpent / totalBudget) * 100;
+    return Math.min(100, (totalProgress / totalBudget) * 100);
   },
 
   getExpenseGrowthRate: (): number => {

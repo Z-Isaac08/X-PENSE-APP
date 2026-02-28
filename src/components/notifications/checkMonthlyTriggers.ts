@@ -1,9 +1,9 @@
-import { type ExpenseInterface } from "../../stores/expenseStore";
-import { type IncomeInterface } from "../../stores/incomeStore";
-import { useNotificationStore } from "../../stores/notificationStore";
-import { useBudgetStore } from "../../stores/budgetStore";
-import { formatCurrency } from "../../utils";
-import { calculateTrackingTrend } from "../../utils/budgetTrends";
+import { useBudgetStore } from '../../stores/budgetStore';
+import { type ExpenseInterface } from '../../stores/expenseStore';
+import { type IncomeInterface } from '../../stores/incomeStore';
+import { useNotificationStore } from '../../stores/notificationStore';
+import { formatCurrency } from '../../utils';
+import { calculateTrackingTrend } from '../../utils/budgetTrends';
 
 export const checkMonthlyTriggers = async (
   userId: string,
@@ -17,100 +17,144 @@ export const checkMonthlyTriggers = async (
   const month = now.getMonth();
   const year = now.getFullYear();
   const day = now.getDate();
-  const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
 
-  // Filtrage des données du mois courant
-  const currentMonthExpenses = expenses.filter((e) => {
+  // Mois précédent (pour le résumé du 1er du mois)
+  const prevMonth = month === 0 ? 11 : month - 1;
+  const prevYear = month === 0 ? year - 1 : year;
+
+  // Filtrage des données du mois courant (pour les notifs de mi-mois, top cat, etc.)
+  const currentMonthExpenses = expenses.filter(e => {
     const d = new Date(e.date);
-    console.log(d);
     return d.getMonth() === month && d.getFullYear() === year;
   });
-  const currentMonthIncomes = incomes.filter((i) => {
+  const currentMonthIncomes = incomes.filter(i => {
     const d = new Date(i.date);
     return d.getMonth() === month && d.getFullYear() === year;
   });
 
-  const totalExpenses = currentMonthExpenses.reduce(
-    (sum, e) => sum + e.amount,
-    0
-  );
-  const totalIncomes = currentMonthIncomes.reduce(
-    (sum, i) => sum + i.amount,
-    0
-  );
+  const totalExpenses = currentMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const totalIncomes = currentMonthIncomes.reduce((sum, i) => sum + i.amount, 0);
+
+  // Filtrage des données du mois précédent (pour le résumé du 1er)
+  const prevMonthExpenses = expenses.filter(e => {
+    const d = new Date(e.date);
+    return d.getMonth() === prevMonth && d.getFullYear() === prevYear;
+  });
+  const prevMonthIncomes = incomes.filter(i => {
+    const d = new Date(i.date);
+    return d.getMonth() === prevMonth && d.getFullYear() === prevYear;
+  });
+
+  const prevTotalExpenses = prevMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
+  const prevTotalIncomes = prevMonthIncomes.reduce((sum, i) => sum + i.amount, 0);
 
   // Résumé mensuel intermédiaire (le 15, seulement si activité)
   if (day === 15 && (totalExpenses > 0 || totalIncomes > 0)) {
-    const monthName = now.toLocaleString("fr-FR", { month: "long" });
+    const monthName = now.toLocaleString('fr-FR', { month: 'long' });
     const balance = totalIncomes - totalExpenses;
     const midSummary = `📊 Résumé mi-${monthName}: ${formatCurrency(totalExpenses)} de dépenses, ${formatCurrency(totalIncomes)} de revenus. Solde: ${formatCurrency(balance)} ${balance >= 0 ? '✅' : '⚠️'}`;
 
     await addNotifications(userId, {
       message: midSummary,
-      type: "alert",
+      type: 'alert',
       date: now.toISOString(),
       read: false,
     });
   }
 
-  // Rappel d’inactivité (le 15)
+  // Rappel d'inactivité (le 15)
   if (day === 15 && totalIncomes === 0 && totalExpenses === 0) {
-    const midMonthReminder = `Aucune activité détectée ce mois-ci. N’oubliez pas de saisir vos revenus ou dépenses.`;
+    const midMonthReminder = `Aucune activité détectée ce mois-ci. N'oubliez pas de saisir vos revenus ou dépenses.`;
     await addNotifications(userId, {
       message: midMonthReminder,
-      type: "alert",
+      type: 'alert',
       date: now.toISOString(),
       read: false,
     });
   }
 
-  // Résumé mensuel final (dernier jour du mois)
-  if (day === lastDayOfMonth) {
-    const finalSummary = `Résumé final de ${now.toLocaleString("fr-FR", {
-      month: "long",
-    })} : ${totalExpenses.toLocaleString()} FCFA de dépenses, ${totalIncomes.toLocaleString()} FCFA de revenus.`;
+  // ✅ Résumé mensuel final (le 1er du mois suivant = bilan du mois écoulé)
+  if (day === 1) {
+    const prevMonthName = new Date(prevYear, prevMonth, 1).toLocaleString('fr-FR', {
+      month: 'long',
+    });
+
+    const finalSummary = `Résumé final de ${prevMonthName} : ${prevTotalExpenses.toLocaleString()} FCFA de dépenses, ${prevTotalIncomes.toLocaleString()} FCFA de revenus.`;
 
     await addNotifications(userId, {
       message: finalSummary,
-      type: "alert",
+      type: 'alert',
       date: now.toISOString(),
       read: false,
     });
 
     // Résumé par type de budget
     const cappedBudgets = budgets.filter(b => b.type === 'capped');
+    const savingsBudgets = budgets.filter(b => b.type === 'savings');
     const trackingBudgets = budgets.filter(b => b.type === 'tracking');
 
-    // Résumé budgets plafonnés
+    // Résumé budgets plafonnés (basé sur mois précédent)
     if (cappedBudgets.length > 0) {
-      const budgetSummary = cappedBudgets.map(budget => {
-        const spent = currentMonthExpenses
-          .filter(e => e.budget === budget.id)
-          .reduce((sum, e) => sum + e.amount, 0);
-        const percentage = budget.amount ? (spent / budget.amount) * 100 : 0;
-        const status = percentage > 100 ? '⚠️ Dépassé' : percentage > 90 ? '⚠️ Limite proche' : '✅ Respecté';
-        return `${budget.name}: ${status}`;
-      }).join(', ');
+      const budgetSummary = cappedBudgets
+        .map(budget => {
+          const spent = prevMonthExpenses
+            .filter(e => e.budget === budget.id)
+            .reduce((sum, e) => sum + e.amount, 0);
+          const percentage = budget.amount ? (spent / budget.amount) * 100 : 0;
+          const status =
+            percentage > 100 ? '⚠️ Dépassé' : percentage > 90 ? '⚠️ Limite proche' : '✅ Respecté';
+          return `${budget.name}: ${status}`;
+        })
+        .join(', ');
 
       await addNotifications(userId, {
-        message: `📊 Budgets plafonnés - ${budgetSummary}`,
-        type: "alert",
+        message: `📊 Budgets plafonnés (${prevMonthName}) - ${budgetSummary}`,
+        type: 'alert',
         date: now.toISOString(),
         read: false,
       });
     }
 
-    // Résumé catégories de suivi avec tendances
+    // Résumé budgets épargne (basé sur mois précédent)
+    if (savingsBudgets.length > 0) {
+      savingsBudgets.forEach(async budget => {
+        const savedIncomes = prevMonthIncomes
+          .filter(i => i.budget === budget.id)
+          .reduce((sum, i) => sum + i.amount, 0);
+        const savedExpenses = prevMonthExpenses
+          .filter(e => e.budget === budget.id)
+          .reduce((sum, e) => sum + e.amount, 0);
+        const netSaved = savedIncomes - savedExpenses;
+        const goal = budget.amount || 0;
+        const percentage = goal > 0 ? Math.min((netSaved / goal) * 100, 100) : 0;
+        const status =
+          netSaved >= goal
+            ? `🎉 Objectif atteint ! (${formatCurrency(netSaved)} / ${formatCurrency(goal)})`
+            : `💰 ${formatCurrency(netSaved)} épargnés sur ${formatCurrency(goal)} (${percentage.toFixed(0)}%)`;
+
+        await addNotifications(userId, {
+          message: `🏦 Épargne "${budget.name}" (${prevMonthName}) : ${status}`,
+          type: 'income',
+          date: now.toISOString(),
+          read: false,
+        });
+      });
+    }
+
+    // Résumé catégories de suivi avec tendances (basé sur mois précédent)
     if (trackingBudgets.length > 0) {
-      trackingBudgets.forEach(async (budget) => {
+      trackingBudgets.forEach(async budget => {
         const trend = calculateTrackingTrend(budget.id, expenses);
         if (trend.currentMonth > 0) {
-          const trendText = trend.trend === 'up' ? '📈 en hausse' : 
-                           trend.trend === 'down' ? '📉 en baisse' : 
-                           '➡️ stable';
+          const trendText =
+            trend.trend === 'up'
+              ? '📈 en hausse'
+              : trend.trend === 'down'
+                ? '📉 en baisse'
+                : '➡️ stable';
           await addNotifications(userId, {
-            message: `📝 ${budget.name}: ${trend.currentMonth.toLocaleString()} FCFA ce mois (${trendText})`,
-            type: "expense",
+            message: `📝 ${budget.name}: ${trend.currentMonth.toLocaleString()} FCFA (${prevMonthName}) (${trendText})`,
+            type: 'expense',
             date: now.toISOString(),
             read: false,
           });
@@ -119,15 +163,10 @@ export const checkMonthlyTriggers = async (
     }
 
     // Notif rapport disponible
-    const reportMessage = `Votre rapport PDF pour ${now.toLocaleString(
-      "fr-FR",
-      {
-        month: "long",
-      }
-    )} est disponible dans le tableau de bord.`;
+    const reportMessage = `Votre rapport PDF pour ${prevMonthName} est disponible dans le tableau de bord.`;
     await addNotifications(userId, {
       message: reportMessage,
-      type: "alert",
+      type: 'alert',
       date: now.toISOString(),
       read: false,
     });
@@ -135,7 +174,7 @@ export const checkMonthlyTriggers = async (
 
   // Catégorie dominante (le 20)
   const categories: Record<string, number> = {};
-  currentMonthExpenses.forEach((e) => {
+  currentMonthExpenses.forEach(e => {
     categories[e.name] = (categories[e.name] || 0) + e.amount;
   });
   const topCategory = Object.entries(categories).sort((a, b) => b[1] - a[1])[0];
@@ -144,7 +183,7 @@ export const checkMonthlyTriggers = async (
     const categoryMessage = `Vous avez principalement dépensé dans ${topCategory[0]} ce mois-ci.`;
     await addNotifications(userId, {
       message: categoryMessage,
-      type: "expense",
+      type: 'expense',
       date: now.toISOString(),
       read: false,
     });
@@ -153,12 +192,12 @@ export const checkMonthlyTriggers = async (
   // Rappel le 1er si aucun revenu
   if (day === 1 && totalIncomes === 0) {
     const reminderMessage = `N’oubliez pas d’ajouter vos revenus mensuels pour ${now.toLocaleString(
-      "fr-FR",
-      { month: "long" }
+      'fr-FR',
+      { month: 'long' }
     )}.`;
     await addNotifications(userId, {
       message: reminderMessage,
-      type: "income",
+      type: 'income',
       date: now.toISOString(),
       read: false,
     });
@@ -167,12 +206,12 @@ export const checkMonthlyTriggers = async (
   // Rappel le 1er si aucune dépense
   if (day === 1 && totalExpenses === 0) {
     const reminderMessage = `N’oubliez pas d’ajouter vos dépenses tout au long du mois de ${now.toLocaleString(
-      "fr-FR",
-      { month: "long" }
+      'fr-FR',
+      { month: 'long' }
     )}.`;
     await addNotifications(userId, {
       message: reminderMessage,
-      type: "expense",
+      type: 'expense',
       date: now.toISOString(),
       read: false,
     });

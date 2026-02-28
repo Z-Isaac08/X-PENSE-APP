@@ -1,7 +1,7 @@
-import type { Opportunity, Prediction, Pattern, TrendAnalysis } from '../../types/agent';
 import { useBudgetStore } from '../../stores/budgetStore';
 import { useExpenseStore } from '../../stores/expenseStore';
 import { useIncomeStore } from '../../stores/incomeStore';
+import type { Opportunity, Pattern, Prediction, TrendAnalysis } from '../../types/agent';
 
 /**
  * Calcule les tendances de dépenses sur plusieurs mois
@@ -30,7 +30,7 @@ export const calculateTrends = (months: number = 3): TrendAnalysis => {
   for (let i = 1; i <= months; i++) {
     let month = currentMonth - i;
     let year = currentYear;
-    
+
     if (month < 0) {
       month += 12;
       year -= 1;
@@ -53,7 +53,7 @@ export const calculateTrends = (months: number = 3): TrendAnalysis => {
 
   if (avgPrevious > 0) {
     percentage = Math.round(((currentTotal - avgPrevious) / avgPrevious) * 100);
-    
+
     if (percentage > 10) {
       overall = 'increasing';
     } else if (percentage < -10) {
@@ -63,7 +63,7 @@ export const calculateTrends = (months: number = 3): TrendAnalysis => {
 
   // Tendances par catégorie
   const byCategory: Record<string, any> = {};
-  
+
   budgets.forEach(budget => {
     const currentCategoryExpenses = currentMonthExpenses.filter(exp => exp.budget === budget.id);
     const currentCategoryTotal = currentCategoryExpenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -75,7 +75,7 @@ export const calculateTrends = (months: number = 3): TrendAnalysis => {
     for (let i = 1; i <= months; i++) {
       let month = currentMonth - i;
       let year = currentYear;
-      
+
       if (month < 0) {
         month += 12;
         year -= 1;
@@ -83,9 +83,9 @@ export const calculateTrends = (months: number = 3): TrendAnalysis => {
 
       const monthCatExpenses = expenses.filter(exp => {
         const expDate = new Date(exp.date);
-        return exp.budget === budget.id &&
-               expDate.getMonth() === month &&
-               expDate.getFullYear() === year;
+        return (
+          exp.budget === budget.id && expDate.getMonth() === month && expDate.getFullYear() === year
+        );
       });
 
       totalPreviousCat += monthCatExpenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -98,7 +98,7 @@ export const calculateTrends = (months: number = 3): TrendAnalysis => {
 
     if (avgPreviousCat > 0) {
       catPercentage = Math.round(((currentCategoryTotal - avgPreviousCat) / avgPreviousCat) * 100);
-      
+
       if (catPercentage > 10) {
         direction = 'up';
       } else if (catPercentage < -10) {
@@ -109,14 +109,14 @@ export const calculateTrends = (months: number = 3): TrendAnalysis => {
     byCategory[budget.name] = {
       direction,
       percentage: catPercentage,
-      comparison: `${currentCategoryTotal.toLocaleString()} FCFA ce mois vs ${Math.round(avgPreviousCat).toLocaleString()} FCFA en moyenne`
+      comparison: `${currentCategoryTotal.toLocaleString()} FCFA ce mois vs ${Math.round(avgPreviousCat).toLocaleString()} FCFA en moyenne`,
     };
   });
 
   return {
     overall,
     percentage,
-    byCategory
+    byCategory,
   };
 };
 
@@ -156,7 +156,7 @@ export const detectSpendingPatterns = (): Pattern[] => {
           category: budget?.name || 'Autre',
           description: `Dépense récurrente "${name}" d'environ ${Math.round(avgAmount).toLocaleString()} FCFA`,
           frequency: `${exps.length} fois`,
-          amount: avgAmount
+          amount: avgAmount,
         });
       }
     }
@@ -169,21 +169,25 @@ export const detectSpendingPatterns = (): Pattern[] => {
 
     const amounts = budgetExpenses.map(e => e.amount);
     const avgAmount = amounts.reduce((sum, a) => sum + a, 0) / amounts.length;
-    const stdDev = Math.sqrt(amounts.reduce((sum, a) => sum + Math.pow(a - avgAmount, 2), 0) / amounts.length);
+    const stdDev = Math.sqrt(
+      amounts.reduce((sum, a) => sum + Math.pow(a - avgAmount, 2), 0) / amounts.length
+    );
 
     // Trouver les dépenses qui dépassent 2 écarts-types
     const spikes = budgetExpenses.filter(exp => exp.amount > avgAmount + 2 * stdDev);
-    
+
     spikes.forEach(spike => {
       const spikeDate = new Date(spike.date);
-      const daysDiff = Math.floor((currentDate.getTime() - spikeDate.getTime()) / (1000 * 60 * 60 * 24));
-      
+      const daysDiff = Math.floor(
+        (currentDate.getTime() - spikeDate.getTime()) / (1000 * 60 * 60 * 24)
+      );
+
       if (daysDiff <= 30) {
         patterns.push({
           type: 'spike',
           category: budget.name,
           description: `Dépense inhabituelle "${spike.name}" de ${spike.amount.toLocaleString()} FCFA (moyenne: ${Math.round(avgAmount).toLocaleString()} FCFA)`,
-          amount: spike.amount
+          amount: spike.amount,
         });
       }
     });
@@ -214,7 +218,7 @@ export const identifySavingsOpportunities = (): Opportunity[] => {
     for (let i = 0; i < 3; i++) {
       let month = currentMonth - i;
       let year = currentYear;
-      
+
       if (month < 0) {
         month += 12;
         year -= 1;
@@ -222,9 +226,9 @@ export const identifySavingsOpportunities = (): Opportunity[] => {
 
       const monthExpenses = expenses.filter(exp => {
         const expDate = new Date(exp.date);
-        return exp.budget === budget.id &&
-               expDate.getMonth() === month &&
-               expDate.getFullYear() === year;
+        return (
+          exp.budget === budget.id && expDate.getMonth() === month && expDate.getFullYear() === year
+        );
       });
 
       const total = monthExpenses.reduce((sum, exp) => sum + exp.amount, 0);
@@ -242,14 +246,14 @@ export const identifySavingsOpportunities = (): Opportunity[] => {
         suggestedTarget,
         potentialSavings: avgSpending - suggestedTarget,
         confidence: 0.7,
-        reasoning: `Catégorie sans limite. En réduisant de 20%, vous économiseriez ${(avgSpending - suggestedTarget).toLocaleString()} FCFA/mois`
+        reasoning: `Catégorie sans limite. En réduisant de 20%, vous économiseriez ${(avgSpending - suggestedTarget).toLocaleString()} FCFA/mois`,
       });
     }
 
     // Si c'est un budget plafonné régulièrement dépassé
     if (budget.type === 'capped' && budget.amount) {
       const exceedCount = last3MonthsExpenses.filter(exp => exp > (budget.amount || 0)).length;
-      
+
       if (exceedCount >= 2) {
         const suggestedTarget = Math.round(avgSpending * 1.1);
         opportunities.push({
@@ -258,7 +262,33 @@ export const identifySavingsOpportunities = (): Opportunity[] => {
           suggestedTarget,
           potentialSavings: 0,
           confidence: 0.9,
-          reasoning: `Budget régulièrement dépassé (${exceedCount}/3 mois). Augmentez le plafond à ${suggestedTarget.toLocaleString()} FCFA ou réduisez vos dépenses`
+          reasoning: `Budget régulièrement dépassé (${exceedCount}/3 mois). Augmentez le plafond à ${suggestedTarget.toLocaleString()} FCFA ou réduisez vos dépenses`,
+        });
+      }
+    }
+
+    // Si c'est un budget épargne en retard sur son objectif
+    if (budget.type === 'savings' && budget.amount) {
+      const incomeStore = useIncomeStore.getState();
+      const totalSavedIncomes = incomeStore.incomes
+        .filter(inc => inc.budget === budget.id)
+        .reduce((sum, inc) => sum + inc.amount, 0);
+      const totalSavedExpenses = expenses
+        .filter(exp => exp.budget === budget.id)
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      const netSaved = totalSavedIncomes - totalSavedExpenses;
+      const goal = budget.amount;
+      const progress = goal > 0 ? (netSaved / goal) * 100 : 0;
+
+      if (progress < 50) {
+        const monthlyNeeded = Math.round((goal - netSaved) / 3);
+        opportunities.push({
+          category: budget.name,
+          currentSpending: netSaved,
+          suggestedTarget: monthlyNeeded,
+          potentialSavings: goal - netSaved,
+          confidence: 0.8,
+          reasoning: `Épargne "${budget.name}" à ${Math.round(progress)}% de l'objectif. Épargnez ${monthlyNeeded.toLocaleString()} FCFA/mois pour atteindre ${goal.toLocaleString()} FCFA d'ici 3 mois`,
         });
       }
     }
@@ -274,7 +304,7 @@ export const predictMonthEnd = (): Prediction => {
   const expenseStore = useExpenseStore.getState();
   const incomeStore = useIncomeStore.getState();
   const budgetStore = useBudgetStore.getState();
-  
+
   const expenses = expenseStore.expenses;
   const incomes = incomeStore.incomes;
   const budgets = budgetStore.budgets;
@@ -302,23 +332,49 @@ export const predictMonthEnd = (): Prediction => {
   // Calculer le rythme de dépense
   const dailyRate = dayOfMonth > 0 ? currentExpensesTotal / dayOfMonth : 0;
   const daysRemaining = totalDaysInMonth - dayOfMonth;
-  const estimatedEndOfMonthExpenses = currentExpensesTotal + (dailyRate * daysRemaining);
+  const estimatedEndOfMonthExpenses = currentExpensesTotal + dailyRate * daysRemaining;
 
   // Revenus estimés (on suppose qu'ils ne changeront pas beaucoup)
   const estimatedBalance = currentIncomesTotal - estimatedEndOfMonthExpenses;
 
   // Budgets à risque
   const budgetsAtRisk: string[] = [];
-  
+
   budgets.forEach(budget => {
+    // Budget plafonné : risque de dépassement
     if (budget.type === 'capped' && budget.amount) {
       const budgetExpenses = currentMonthExpenses.filter(exp => exp.budget === budget.id);
       const currentSpent = budgetExpenses.reduce((sum, exp) => sum + exp.amount, 0);
       const budgetDailyRate = dayOfMonth > 0 ? currentSpent / dayOfMonth : 0;
-      const estimatedTotal = currentSpent + (budgetDailyRate * daysRemaining);
+      const estimatedTotal = currentSpent + budgetDailyRate * daysRemaining;
 
       if (estimatedTotal > budget.amount) {
         budgetsAtRisk.push(budget.name);
+      }
+    }
+
+    // Budget épargne : risque de ne pas atteindre l'objectif ce mois
+    if (budget.type === 'savings' && budget.amount) {
+      const incomeStore = useIncomeStore.getState();
+      const savedIncomes = incomeStore.incomes
+        .filter(
+          inc =>
+            inc.budget === budget.id &&
+            (() => {
+              const d = new Date(inc.date);
+              return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+            })()
+        )
+        .reduce((sum, inc) => sum + inc.amount, 0);
+      const savedExpenses = currentMonthExpenses
+        .filter(exp => exp.budget === budget.id)
+        .reduce((sum, exp) => sum + exp.amount, 0);
+      const netSaved = savedIncomes - savedExpenses;
+      const progress = (netSaved / budget.amount) * 100;
+
+      // À risque si moins de 50% de l'objectif atteint et il reste peu de jours
+      if (progress < 50 && daysRemaining < 10) {
+        budgetsAtRisk.push(`${budget.name} (épargne)`);
       }
     }
   });
@@ -331,14 +387,19 @@ export const predictMonthEnd = (): Prediction => {
     estimatedBalance: Math.round(estimatedBalance),
     budgetsAtRisk,
     confidence,
-    projectedDate: new Date(currentYear, currentMonth + 1, 0)
+    projectedDate: new Date(currentYear, currentMonth + 1, 0),
   };
 };
 
 /**
  * Compare deux périodes
  */
-export const comparePeriods = (period1Start: Date, period1End: Date, period2Start: Date, period2End: Date): any => {
+export const comparePeriods = (
+  period1Start: Date,
+  period1End: Date,
+  period2Start: Date,
+  period2End: Date
+): any => {
   const expenseStore = useExpenseStore.getState();
   const expenses = expenseStore.expenses;
 
@@ -363,16 +424,16 @@ export const comparePeriods = (period1Start: Date, period1End: Date, period2Star
       start: period1Start,
       end: period1End,
       total: total1,
-      count: period1Expenses.length
+      count: period1Expenses.length,
     },
     period2: {
       start: period2Start,
       end: period2End,
       total: total2,
-      count: period2Expenses.length
+      count: period2Expenses.length,
     },
     difference,
     percentageChange,
-    trend: difference > 0 ? 'increasing' : difference < 0 ? 'decreasing' : 'stable'
+    trend: difference > 0 ? 'increasing' : difference < 0 ? 'decreasing' : 'stable',
   };
 };
