@@ -1,12 +1,12 @@
-import { CheckCheck, ChevronLeft, ChevronRight, Trash2 } from "lucide-react";
-import { useState } from "react";
-import NotificationCard from "../components/notifications/NotificationCard";
-import NotificationFilters from "../components/notifications/NotificationFilters";
-import NotificationStats from "../components/notifications/NotificationStats";
-import type { NotificationInterface } from "../stores/notificationStore";
-import { useNotificationStore } from "../stores/notificationStore";
-import { useUserStore } from "../stores/userStore";
-import { getMonthLabel, isSameMonthAndYear, parseIsoDate } from "../utils";
+import { CheckCheck, ChevronLeft, ChevronRight, Trash2 } from 'lucide-react';
+import { useState } from 'react';
+import NotificationCard from '../components/notifications/NotificationCard';
+import NotificationFilters from '../components/notifications/NotificationFilters';
+import NotificationStats from '../components/notifications/NotificationStats';
+import type { NotificationInterface } from '../stores/notificationStore';
+import { useNotificationStore } from '../stores/notificationStore';
+import { useUserStore } from '../stores/userStore';
+import { getMonthLabel, isSameMonthAndYear, parseIsoDate } from '../utils';
 
 const NotificationsPage = () => {
   const { user } = useUserStore();
@@ -18,7 +18,6 @@ const NotificationsPage = () => {
     clearAllNotifications,
     getNotificationStats,
     getFilteredNotifications,
-    getNotificationsByPriority,
   } = useNotificationStore();
 
   const [selectedDate, setSelectedDate] = useState(() => {
@@ -29,7 +28,6 @@ const NotificationsPage = () => {
   const [activeFilter, setActiveFilter] = useState<{
     type?: string;
     read?: boolean;
-    priority?: string;
   }>({});
 
   const [showStats, setShowStats] = useState(false);
@@ -51,9 +49,7 @@ const NotificationsPage = () => {
 
   const handleClearAll = async () => {
     if (!user) return;
-    if (
-      confirm("Êtes-vous sûr de vouloir supprimer toutes les notifications ?")
-    ) {
+    if (confirm('Êtes-vous sûr de vouloir supprimer toutes les notifications ?')) {
       await clearAllNotifications(user.id);
     }
   };
@@ -62,34 +58,24 @@ const NotificationsPage = () => {
   const canGoPrevious = !isSameMonthAndYear(selectedDate, createdAt);
 
   const goToPreviousMonth = () => {
-    setSelectedDate(
-      (prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1)
-    );
+    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
   };
 
   const goToNextMonth = () => {
-    setSelectedDate(
-      (prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1)
-    );
+    setSelectedDate(prev => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
   };
 
   // Get filtered notifications based on month and active filters
-  const monthFilteredNotifications = notifications.filter(
-    (notif: NotificationInterface) => {
-      const notifDate = parseIsoDate(notif.date);
-      return isSameMonthAndYear(notifDate, selectedDate);
-    }
-  );
+  const monthFilteredNotifications = notifications.filter((notif: NotificationInterface) => {
+    const notifDate = parseIsoDate(notif.date);
+    return isSameMonthAndYear(notifDate, selectedDate);
+  });
 
   // Apply additional filters
-  const baseFiltered = getFilteredNotifications({
+  const finalNotifications = getFilteredNotifications({
     ...activeFilter,
     dateRange: {
-      start: new Date(
-        selectedDate.getFullYear(),
-        selectedDate.getMonth(),
-        1
-      ).toISOString(),
+      start: new Date(selectedDate.getFullYear(), selectedDate.getMonth(), 1).toISOString(),
       end: new Date(
         selectedDate.getFullYear(),
         selectedDate.getMonth() + 1,
@@ -102,21 +88,6 @@ const NotificationsPage = () => {
     },
   });
 
-  // Apply priority filtering if needed
-  let finalNotifications = baseFiltered;
-  if (activeFilter.priority) {
-    const priorityGroups = getNotificationsByPriority();
-    finalNotifications =
-      priorityGroups[activeFilter.priority as keyof typeof priorityGroups] ||
-      [];
-    finalNotifications = finalNotifications.filter(
-      (notif: NotificationInterface) =>
-        baseFiltered.some(
-          (filtered: NotificationInterface) => filtered.id === notif.id
-        )
-    );
-  }
-
   const sortedNotifications = finalNotifications.sort(
     (a: NotificationInterface, b: NotificationInterface) =>
       parseIsoDate(b.date).getTime() - parseIsoDate(a.date).getTime()
@@ -124,25 +95,26 @@ const NotificationsPage = () => {
 
   const stats = getNotificationStats();
   const monthLabel = getMonthLabel(selectedDate);
-  const unreadCount = monthFilteredNotifications.filter((n: NotificationInterface) => !n.read).length;
+  const unreadCount = monthFilteredNotifications.filter(
+    (n: NotificationInterface) => !n.read
+  ).length;
 
   const determinePriority = (
     notification: NotificationInterface
-  ): "critical" | "important" | "normal" => {
+  ): 'critical' | 'important' | 'normal' => {
     if (
-      notification.type === "alert" ||
-      notification.message.includes("Budget dépassé") ||
-      notification.message.includes("Limite atteinte")
+      notification.type === 'alert' ||
+      notification.message.includes('Budget dépassé') ||
+      notification.message.includes('Limite atteinte')
     ) {
-      return "critical";
+      return 'critical';
     } else if (
-      notification.type === "expense" &&
-      (notification.message.includes("élevée") ||
-        notification.message.includes("augmentation"))
+      notification.type === 'expense' &&
+      (notification.message.includes('élevée') || notification.message.includes('augmentation'))
     ) {
-      return "important";
+      return 'important';
     }
-    return "normal";
+    return 'normal';
   };
 
   return (
@@ -154,8 +126,8 @@ const NotificationsPage = () => {
             onClick={canGoPrevious ? goToPreviousMonth : undefined}
             className={`text-2xl font-bold ${
               canGoPrevious
-                ? "cursor-pointer text-current hover:text-[#3170dd]"
-                : "text-gray-400 cursor-not-allowed"
+                ? 'cursor-pointer text-current hover:text-[#3170dd]'
+                : 'text-gray-400 cursor-not-allowed'
             } transition-colors`}
           />
           <h1 className="text-2xl md:text-3xl font-bold capitalize">
@@ -167,7 +139,7 @@ const NotificationsPage = () => {
           />
           {unreadCount > 0 && (
             <span className="bg-red-500 text-white text-xs px-2 py-1 rounded-full">
-              {unreadCount} non lu{unreadCount > 1 ? "es" : ""}
+              {unreadCount} non lu{unreadCount > 1 ? 'es' : ''}
             </span>
           )}
         </div>
@@ -178,7 +150,7 @@ const NotificationsPage = () => {
             onClick={() => setShowStats(!showStats)}
             className="flex items-center gap-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 px-3 py-2 rounded hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
           >
-            📊 {showStats ? "Masquer" : "Statistiques"}
+            📊 {showStats ? 'Masquer' : 'Statistiques'}
           </button>
 
           <button
@@ -217,11 +189,9 @@ const NotificationsPage = () => {
           <div className="text-6xl mb-4">🔔</div>
           <h3 className="text-xl font-semibold mb-2">Aucune notification</h3>
           <p className="text-gray-500">
-            {activeFilter.type ||
-            activeFilter.read !== undefined ||
-            activeFilter.priority
-              ? "Aucune notification ne correspond aux filtres sélectionnés."
-              : "Aucune notification pour ce mois."}
+            {activeFilter.type || activeFilter.read !== undefined
+              ? 'Aucune notification ne correspond aux filtres sélectionnés.'
+              : 'Aucune notification pour ce mois.'}
           </p>
         </div>
       ) : (

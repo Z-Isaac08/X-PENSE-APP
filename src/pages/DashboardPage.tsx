@@ -79,16 +79,16 @@ const DashboardPage = () => {
 
       <KPICardsContainer />
 
-      <div className="mt-8 grid grid-cols-1 lg:grid-cols-2 gap-6 items-start">
-        <div className="w-full bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+      <div className="mt-12 grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
+        <div className="w-full bg-white dark:bg-neutral-900 p-8 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm transition-all hover:shadow-md">
           <MonthlyTrendsChart />
         </div>
-        <div className="w-full bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+        <div className="w-full bg-white dark:bg-neutral-900 p-8 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm transition-all hover:shadow-md">
           <CategorySpendingChart />
         </div>
       </div>
 
-      <div className="mt-6 w-full bg-white dark:bg-neutral-900 p-4 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm">
+      <div className="mt-8 w-full bg-white dark:bg-neutral-900 p-8 rounded-2xl border border-neutral-200 dark:border-neutral-800 shadow-sm transition-all hover:shadow-md">
         <DailySpendingChart />
       </div>
     </main>

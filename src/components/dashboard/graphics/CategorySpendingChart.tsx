@@ -1,16 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
-import {
-  Cell,
-  Legend,
-  Pie,
-  PieChart,
-  ResponsiveContainer,
-  Tooltip,
-} from "recharts";
-import { useDashboardStore } from "../../../stores/dashboardStore";
-import { formatCurrency } from "../../../utils";
+import { Cell, Legend, Pie, PieChart, ResponsiveContainer, Tooltip } from 'recharts';
+import { useDashboardStore } from '../../../stores/dashboardStore';
+import { formatCurrency } from '../../../utils';
 
-const COLORS = ["#ef4444", "#f97316", "#eab308", "#22c55e", "#3b82f6"];
+const COLORS = ['#ef4444', '#f97316', '#eab308', '#22c55e', '#3b82f6'];
 
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
@@ -37,14 +30,12 @@ const CategorySpendingChart = () => {
   const dataWithTotal = topExpenses.map((item: any) => ({ ...item, totalSum }));
 
   return (
-    <div className="rounded-2xl shadow p-4 md:w-1/2 w-full text-[#1f1f1f] dark:text-neutral-100 bg-white dark:bg-gray-800">
-      <h2 className="text-xl font-semibold mb-4">Répartition des dépenses</h2>
+    <div className="w-full h-full">
+      <h2 className="text-xl font-semibold mb-6">Répartition des dépenses</h2>
       {topExpenses.length === 0 ? (
         <div className="flex flex-col items-center justify-center h-64 text-center">
           <div className="text-gray-400 mb-2">🥧</div>
-          <p className="text-gray-500 font-medium">
-            Aucune dépense enregistrée
-          </p>
+          <p className="text-gray-500 font-medium">Aucune dépense enregistrée</p>
           <p className="text-gray-400 text-sm">
             Ajoutez des dépenses pour voir la répartition par catégorie
           </p>
@@ -66,10 +57,7 @@ const CategorySpendingChart = () => {
               labelLine={false}
             >
               {dataWithTotal.map((_entry: any, index: number) => (
-                <Cell
-                  key={`cell-${index}`}
-                  fill={COLORS[index % COLORS.length]}
-                />
+                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
               ))}
             </Pie>
             <Tooltip content={<CustomTooltip />} />
