@@ -1,4 +1,4 @@
-import { type ExpenseInterface } from "../stores/expenseStore";
+import { type ExpenseInterface } from '../stores/expenseStore';
 
 /**
  * Calcule la tendance mensuelle pour une catégorie de suivi
@@ -6,7 +6,9 @@ import { type ExpenseInterface } from "../stores/expenseStore";
  */
 export const calculateTrackingTrend = (
   budgetId: string,
-  expenses: ExpenseInterface[]
+  expenses: ExpenseInterface[],
+  targetMonth?: number,
+  targetYear?: number
 ): {
   currentMonth: number;
   previousMonth: number;
@@ -15,51 +17,59 @@ export const calculateTrackingTrend = (
   trend: 'up' | 'down' | 'stable';
 } => {
   const now = new Date();
-  const currentMonth = now.getMonth();
-  const currentYear = now.getFullYear();
+  const monthToAnalyze = targetMonth !== undefined ? targetMonth : now.getMonth();
+  const yearToAnalyze = targetYear !== undefined ? targetYear : now.getFullYear();
 
-  // Mois actuel
-  const currentMonthExpenses = expenses.filter((e) => {
+  // Mois analysé (actuel au moment du calcul)
+  const currentMonthExpenses = expenses.filter(e => {
     const d = new Date(e.date);
-    return e.budget === budgetId && d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+    return (
+      e.budget === budgetId && d.getMonth() === monthToAnalyze && d.getFullYear() === yearToAnalyze
+    );
   });
   const currentTotal = currentMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
 
-  // Mois précédent
-  const previousMonth = currentMonth === 0 ? 11 : currentMonth - 1;
-  const previousYear = currentMonth === 0 ? currentYear - 1 : currentYear;
-  const previousMonthExpenses = expenses.filter((e) => {
+  // Mois précédent l'analyse
+  const previousMonth = monthToAnalyze === 0 ? 11 : monthToAnalyze - 1;
+  const previousYear = monthToAnalyze === 0 ? yearToAnalyze - 1 : yearToAnalyze;
+  const previousMonthExpenses = expenses.filter(e => {
     const d = new Date(e.date);
-    return e.budget === budgetId && d.getMonth() === previousMonth && d.getFullYear() === previousYear;
+    return (
+      e.budget === budgetId && d.getMonth() === previousMonth && d.getFullYear() === previousYear
+    );
   });
   const previousTotal = previousMonthExpenses.reduce((sum, e) => sum + e.amount, 0);
 
   // Moyenne des 3 derniers mois
   const last3Months: number[] = [];
   for (let i = 1; i <= 3; i++) {
-    let targetMonth = currentMonth - i;
-    let targetYear = currentYear;
-    
-    while (targetMonth < 0) {
-      targetMonth += 12;
-      targetYear -= 1;
+    let targetM = monthToAnalyze - i;
+    let targetY = yearToAnalyze;
+
+    while (targetM < 0) {
+      targetM += 12;
+      targetY -= 1;
     }
 
-    const monthExpenses = expenses.filter((e) => {
+    const monthExpenses = expenses.filter(e => {
       const d = new Date(e.date);
-      return e.budget === budgetId && d.getMonth() === targetMonth && d.getFullYear() === targetYear;
+      return e.budget === budgetId && d.getMonth() === targetM && d.getFullYear() === targetY;
     });
     last3Months.push(monthExpenses.reduce((sum, e) => sum + e.amount, 0));
   }
 
-  const average3Months = last3Months.length > 0 
-    ? last3Months.reduce((sum, val) => sum + val, 0) / last3Months.length 
-    : 0;
+  const average3Months =
+    last3Months.length > 0
+      ? last3Months.reduce((sum, val) => sum + val, 0) / last3Months.length
+      : 0;
 
   // Calcul de la variation
-  const variation = previousTotal > 0 
-    ? ((currentTotal - previousTotal) / previousTotal) * 100 
-    : (currentTotal > 0 ? 100 : 0);
+  const variation =
+    previousTotal > 0
+      ? ((currentTotal - previousTotal) / previousTotal) * 100
+      : currentTotal > 0
+        ? 100
+        : 0;
 
   // Déterminer la tendance
   let trend: 'up' | 'down' | 'stable' = 'stable';

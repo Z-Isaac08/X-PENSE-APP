@@ -1,5 +1,6 @@
-import { ChevronUp, Info, Plus, Settings } from 'lucide-react';
-import { useEffect, useState } from 'react';
+import { AnimatePresence, motion } from 'framer-motion';
+import { ArrowRight, ChevronUp, Info, Plus, Settings } from 'lucide-react';
+import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import BudgetForm from '../components/budgetForm/budgetForm';
 import ExpenseForm from '../components/expenseForm/ExpenseForm';
@@ -40,23 +41,62 @@ const HomePage = () => {
     .filter(tx => tx.type === 'income')
     .map(({ type, ...income }) => income);
 
+  const displayBudgets = (() => {
+    const sorted = [...budgets].sort((a, b) =>
+      (b.createdAt || '').localeCompare(a.createdAt || '')
+    );
+    const top3: typeof budgets = [];
+    const types = ['capped', 'savings', 'tracking'] as const;
+
+    types.forEach(type => {
+      const found = sorted.find(b => b.type === type);
+      if (found) top3.push(found);
+    });
+
+    sorted.forEach(b => {
+      if (top3.length < 3 && !top3.some(existing => existing.id === b.id)) {
+        top3.push(b);
+      }
+    });
+
+    return top3.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
+  })();
+
+  const isRunningCheck = useRef(false);
+
   useEffect(() => {
     const runMonthlyCheck = async () => {
+      // On n'exécute le check que si l'utilisateur et les budgets sont là
+      // On ajoute la sécurité isRunningCheck pour éviter les doublons SI le check est déjà en cours
+      if (!user || budgets.length === 0 || isRunningCheck.current) return;
+
       const lastCheck = localStorage.getItem('lastMonthlyCheck');
       const today = new Date().toDateString();
 
-      if (user && lastCheck !== today) {
+      // Si déjà fait aujourd'hui, on ne refait pas
+      if (lastCheck === today) return;
+
+      // VERROU DE SESSION : On marque comme "en cours" immédiatement
+      isRunningCheck.current = true;
+
+      try {
+        // VERROU PERSISTANT : On marque comme "fait" AVANT le await
+        // Comme ça, si une autre instance du useEffect se lance pendant le 'await',
+        // elle verra que c'est déjà fait et s'arrêtera.
         localStorage.setItem('lastMonthlyCheck', today);
-        try {
-          await checkMonthlyTriggers(user.id, expenses, incomes);
-        } catch (error) {
-          console.error('Erreur lors du check mensuel :', error);
-        }
+
+        await checkMonthlyTriggers(user.id, expenses, incomes);
+      } catch (error) {
+        console.error('Erreur lors du check mensuel :', error);
+        // En cas d'erreur seulement, on permet de réessayer
+        localStorage.removeItem('lastMonthlyCheck');
+      } finally {
+        isRunningCheck.current = false;
       }
     };
 
     runMonthlyCheck();
-  }, [user, expenses, incomes]);
+  }, [user, expenses, incomes, budgets]);
 
   const HandleBudget = (id: string) => {
     navigate(`/h/budgets/${id}`);
@@ -117,13 +157,23 @@ const HomePage = () => {
               </div>
             </button>
 
-            {showBudgetForm && (
-              <div className="px-6 sm:px-10 py-10 border-t border-neutral-100 dark:border-neutral-800 animate-in fade-in slide-in-from-top-2 duration-300">
-                <div className="max-w-2xl mx-auto">
-                  <BudgetForm standalone={false} onSuccess={() => setShowBudgetForm(false)} />
-                </div>
-              </div>
-            )}
+            <AnimatePresence>
+              {showBudgetForm && (
+                <motion.div
+                  initial={{ height: 0, opacity: 0 }}
+                  animate={{ height: 'auto', opacity: 1 }}
+                  exit={{ height: 0, opacity: 0 }}
+                  transition={{ duration: 0.5, ease: 'easeInOut' }}
+                  className="overflow-hidden"
+                >
+                  <div className="px-6 pb-6">
+                    <div className="max-w-2xl mx-auto">
+                      <BudgetForm standalone={false} onSuccess={() => setShowBudgetForm(false)} />
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
           </div>
 
           {/* Actions Quotidiennes */}
@@ -137,9 +187,18 @@ const HomePage = () => {
           </div>
 
           <div className="mt-16 flex flex-col gap-8">
-            <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Vos catégories</h2>
+            <div className="flex items-center justify-between">
+              <h2 className="text-3xl md:text-4xl font-bold tracking-tight">Vos catégories</h2>
+              <Link
+                to="/h/budgets"
+                className="text-neutral-500 dark:text-neutral-400 text-sm font-semibold hover:text-[#3170dd] dark:hover:text-blue-400 transition-colors flex items-center gap-1"
+              >
+                Toutes
+                <ArrowRight size={16} />
+              </Link>
+            </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {budgets.map((budget, index) => {
+              {displayBudgets.map((budget, index) => {
                 const spent = getExpenseBudget(budget.id);
                 const added = getIncomeBudget(budget.id);
 

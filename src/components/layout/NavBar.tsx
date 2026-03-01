@@ -1,4 +1,4 @@
-import { Bell, Bot, ChartNoAxesCombined, House, SunMoon, User } from 'lucide-react';
+import { Bell, ChartNoAxesCombined, House, SunMoon, User } from 'lucide-react';
 import { useNavigate } from 'react-router';
 import Logo from '../../assets/logo.svg';
 import { useAuthStore } from '../../stores/authStore';
@@ -60,13 +60,14 @@ const NavBar = () => {
             )}
           </div>
 
-          {/* Chatbot Financier */}
+          {/* Chatbot Financier (Masqué temporairement)
           <button
             className="p-2 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition"
             onClick={() => navigate('/h/chat')}
           >
             <Bot className="w-5 h-5" />
           </button>
+          */}
 
           {/* Thème */}
           <button

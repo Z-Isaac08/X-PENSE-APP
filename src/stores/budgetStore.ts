@@ -8,6 +8,7 @@ export interface BudgetInterface {
   name: string;
   type: BudgetType;
   amount?: number; // Optionnel - requis seulement si type = 'capped' ou 'savings'
+  createdAt?: string;
 }
 
 interface BudgetStore {
@@ -37,6 +38,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
       const budgetData: any = {
         name: budget.name || '',
         type: budget.type || 'capped',
+        createdAt: new Date().toISOString(),
       };
 
       // Ajouter amount seulement si défini
@@ -69,6 +71,7 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
           name: data.name || '',
           type: type,
           amount: data.amount !== undefined ? Number(data.amount) : undefined,
+          createdAt: data.createdAt || '',
         };
       });
       set({ budgets });

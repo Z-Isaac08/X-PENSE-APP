@@ -1,7 +1,8 @@
 import { endOfMonth, format, startOfMonth, subMonths } from 'date-fns';
 import { fr } from 'date-fns/locale';
-import { Calendar, Filter, Search } from 'lucide-react';
+import { Calendar, ChevronLeft, Filter, Search } from 'lucide-react';
 import { useMemo, useState } from 'react';
+import { useNavigate } from 'react-router';
 import Table from '../components/table/Table';
 import { useExpenseStore } from '../stores/expenseStore';
 import { useIncomeStore } from '../stores/incomeStore';
@@ -13,6 +14,7 @@ type DateRange = {
 };
 
 const TransactionPage = () => {
+  const navigate = useNavigate();
   const { expenses } = useExpenseStore();
   const { incomes } = useIncomeStore();
 
@@ -106,11 +108,19 @@ const TransactionPage = () => {
   return (
     <main className="min-h-screen px-4 py-6 space-y-6 md:px-8 lg:px-12 text-[#1f1f1f] dark:text-neutral-100 transition-colors duration-500">
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-        <div>
-          <h1 className="text-3xl md:text-4xl font-bold">Transactions</h1>
-          <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-            Gérez et suivez toutes vos transactions
-          </p>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate(-1)}
+            className="p-2.5 bg-neutral-100 dark:bg-neutral-800 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+          >
+            <ChevronLeft size={20} />
+          </button>
+          <div>
+            <h1 className="text-3xl md:text-4xl font-bold">Transactions</h1>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              Gérez et suivez toutes vos transactions
+            </p>
+          </div>
         </div>
       </div>
 

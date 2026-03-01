@@ -1,18 +1,18 @@
-import { useEffect, useState } from "react";
-import { useBudgetStore } from "../../stores/budgetStore";
-import { useExpenseStore } from "../../stores/expenseStore";
-import { useIncomeStore } from "../../stores/incomeStore";
-import { useUserStore } from "../../stores/userStore";
-import Footer from "./Footer";
-import NavBar from "./NavBar";
-import { useNotificationStore } from "../../stores/notificationStore";
+import { useEffect, useState } from 'react';
+import { useBudgetStore } from '../../stores/budgetStore';
+import { useExpenseStore } from '../../stores/expenseStore';
+import { useIncomeStore } from '../../stores/incomeStore';
+import { useNotificationStore } from '../../stores/notificationStore';
+import { useUserStore } from '../../stores/userStore';
+import Footer from './Footer';
+import NavBar from './NavBar';
 
 const Layout = ({ children }: { children: React.ReactNode }) => {
   const { user } = useUserStore();
   const { getAllBudgets } = useBudgetStore();
   const { getAllExpenses } = useExpenseStore();
   const { getAllIncomes } = useIncomeStore();
-  const { AllNotifications } = useNotificationStore()
+  const { AllNotifications } = useNotificationStore();
 
   const [loading, setLoading] = useState(user !== null); // chargement uniquement si user est présent
 
@@ -28,10 +28,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
           getAllBudgets(user.id),
           getAllExpenses(user.id),
           getAllIncomes(user.id),
-          AllNotifications(user.id)
+          AllNotifications(user.id),
         ]);
       } catch (err) {
-        console.error("Erreur de chargement global :", err);
+        console.error('Erreur de chargement global :', err);
       } finally {
         setLoading(false);
       }

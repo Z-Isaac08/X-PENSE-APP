@@ -1,4 +1,4 @@
-import { Trash } from 'lucide-react';
+import { ChevronLeft, Trash } from 'lucide-react';
 import { Link, Navigate, useNavigate, useParams } from 'react-router';
 import { toast } from 'react-toastify';
 import ExpenseForm from '../components/expenseForm/ExpenseForm';
@@ -74,22 +74,30 @@ const BudgetPage = () => {
         title={`${budget.name} - Budget`}
         description={`Suivi des dépenses pour le budget ${budget.name}.`}
       />
-      <h1 className="text-4xl md:text-6xl font-extrabold mb-10 tracking-tight">
-        Aperçu de <span className="text-[#3170dd]">{budget.name}</span>
-      </h1>
+      <div className="flex items-center gap-4 mb-8">
+        <button
+          onClick={() => navigate(-1)}
+          className="p-2.5 bg-neutral-100 dark:bg-neutral-800 rounded-full hover:bg-neutral-200 dark:hover:bg-neutral-700 transition-colors"
+        >
+          <ChevronLeft size={20} />
+        </button>
+        <h1 className="text-3xl md:text-5xl font-extrabold tracking-tight mb-0">
+          Aperçu de <span className="text-[#3170dd]">{budget.name}</span>
+        </h1>
+      </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
         {isCapped ? (
           // BUDGET PLAFONNÉ
-          <div className="p-6 flex flex-col gap-6 justify-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold uppercase tracking-widest bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-3 py-1 rounded-full">
+          <div className="p-5 flex flex-col gap-4 justify-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300 px-2 py-0.5 rounded-full">
                 Budget plafonné
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <h3 className={`text-2xl font-bold ${dangerClass}`}>{budget.name}</h3>
-              <p className={`text-xl font-extrabold ${dangerClass}`}>
+              <h3 className={`text-xl font-bold ${dangerClass}`}>{budget.name}</h3>
+              <p className={`text-lg font-extrabold ${dangerClass}`}>
                 {formatCurrency(budget.amount || 0)}
               </p>
             </div>
@@ -102,43 +110,45 @@ const BudgetPage = () => {
               state={restant > 0 ? true : false}
               even
             />
-            <div className="flex justify-between text-sm">
-              <div className="flex flex-col gap-2">
+            <div className="flex justify-between text-xs">
+              <div className="flex flex-col gap-1">
                 <p className={`font-medium ${dangerClass}`}>{formatCurrency(spent)} dépensé</p>
                 <p className={`font-medium ${dangerClass}`}>{formatCurrency(added)} ajouté</p>
               </div>
-              <p className={`font-bold text-lg ${dangerClass}`}>
+              <p className={`font-bold text-sm ${dangerClass}`}>
                 {formatCurrency(restant)} restants
               </p>
             </div>
-            <div className="text-center py-2 px-4 rounded-xl bg-neutral-50 dark:bg-neutral-800 text-sm font-bold">
+            <div className="text-center py-1.5 px-3 rounded-lg bg-neutral-50 dark:bg-neutral-800 text-[10px] font-bold">
               {restant > 0 ? (
-                <span className="text-emerald-600 dark:text-emerald-400">DANS LES LIMITES</span>
+                <span className="text-emerald-600 dark:text-emerald-400 uppercase">
+                  Dans les limites
+                </span>
               ) : (
-                <span className="text-red-600 dark:text-red-400">BUDGET DÉPASSÉ</span>
+                <span className="text-red-600 dark:text-red-400 uppercase">Budget dépassé</span>
               )}
             </div>
             <button
               onClick={handleDelete}
-              className="mt-2 flex items-center justify-center gap-2 px-4 cursor-pointer py-3 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-xl text-sm font-bold transition-all"
+              className="mt-1 flex items-center justify-center gap-2 px-3 cursor-pointer py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg text-xs font-bold transition-all"
             >
-              <Trash className="w-4 h-4" />
-              SUPPRIMER LA CATÉGORIE
+              <Trash className="w-3.5 h-3.5" />
+              Supprimer
             </button>
           </div>
         ) : budget.type === 'savings' ? (
           // BUDGET ÉPARGNE
-          <div className="p-6 flex flex-col gap-6 justify-center bg-emerald-50/10 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 rounded-2xl shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold uppercase tracking-widest bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-3 py-1 rounded-full">
+          <div className="p-5 flex flex-col gap-4 justify-center bg-emerald-50/10 dark:bg-emerald-900/10 border border-emerald-200 dark:border-emerald-800 rounded-2xl shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-300 px-2 py-0.5 rounded-full">
                 Objectif d'épargne
               </span>
             </div>
             <div className="flex justify-between items-center">
-              <h3 className="text-2xl font-bold text-emerald-700 dark:text-emerald-300">
+              <h3 className="text-xl font-bold text-emerald-700 dark:text-emerald-300">
                 {budget.name}
               </h3>
-              <p className="text-xl font-extrabold text-emerald-700 dark:text-emerald-300">
+              <p className="text-lg font-extrabold text-emerald-700 dark:text-emerald-300">
                 {formatCurrency(budget.amount || 0)}
               </p>
             </div>
@@ -158,27 +168,27 @@ const BudgetPage = () => {
                     even={false}
                     customColor="bg-emerald-500"
                   />
-                  <div className="flex justify-between text-sm">
-                    <div className="flex flex-col gap-2">
+                  <div className="flex justify-between text-xs">
+                    <div className="flex flex-col gap-1">
                       <p className="font-medium text-emerald-600 dark:text-emerald-400">
                         {formatCurrency(currentSaved)} épargnés
                       </p>
-                      <div className="text-xs text-neutral-500">
+                      <div className="text-[10px] text-neutral-500">
                         (+{formatCurrency(added)} / -{formatCurrency(spent)})
                       </div>
                     </div>
-                    <p className="font-bold text-lg text-neutral-500 whitespace-nowrap">
+                    <p className="font-bold text-sm text-neutral-500 whitespace-nowrap">
                       -{formatCurrency(remainingToGoal)}
                     </p>
                   </div>
-                  <div className="text-center py-2 px-4 rounded-xl bg-emerald-100/30 dark:bg-emerald-800/20 text-sm font-bold">
+                  <div className="text-center py-1.5 px-3 rounded-lg bg-emerald-100/30 dark:bg-emerald-800/20 text-[10px] font-bold">
                     {currentSaved >= goal ? (
-                      <span className="text-emerald-600 dark:text-emerald-400">
-                        OBJECTIF ATTEINT ! 🏆
+                      <span className="text-emerald-600 dark:text-emerald-400 uppercase">
+                        Objectif atteint ! 🏆
                       </span>
                     ) : (
-                      <span className="text-neutral-600 dark:text-neutral-400">
-                        CONTINUEZ COMME ÇA !
+                      <span className="text-neutral-600 dark:text-neutral-400 uppercase">
+                        Continuez comme ça !
                       </span>
                     )}
                   </div>
@@ -188,47 +198,47 @@ const BudgetPage = () => {
 
             <button
               onClick={handleDelete}
-              className="mt-2 flex items-center justify-center gap-2 px-4 cursor-pointer py-3 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-xl text-sm font-bold transition-all"
+              className="mt-1 flex items-center justify-center gap-2 px-3 cursor-pointer py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg text-xs font-bold transition-all"
             >
-              <Trash className="w-4 h-4" />
-              SUPPRIMER L'OBJECTIF
+              <Trash className="w-3.5 h-3.5" />
+              Supprimer
             </button>
           </div>
         ) : (
           // CATÉGORIE DE SUIVI
-          <div className="p-6 flex flex-col gap-6 justify-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm">
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs font-bold uppercase tracking-widest bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-3 py-1 rounded-full">
+          <div className="p-5 flex flex-col gap-4 justify-center bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 rounded-2xl shadow-sm">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-widest bg-neutral-100 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 px-2 py-0.5 rounded-full">
                 Catégorie de suivi
               </span>
             </div>
-            <h3 className="text-2xl font-bold">{budget.name}</h3>
+            <h3 className="text-xl font-bold">{budget.name}</h3>
 
-            <div className="text-center py-8 bg-neutral-50 dark:bg-neutral-800/50 rounded-2xl">
-              <p className="text-5xl font-extrabold text-[#3170dd]">{formatCurrency(spent)}</p>
-              <p className="text-sm font-bold text-neutral-500 uppercase tracking-widest mt-2">
+            <div className="text-center py-5 bg-neutral-50 dark:bg-neutral-800/50 rounded-xl">
+              <p className="text-4xl font-extrabold text-[#3170dd]">{formatCurrency(spent)}</p>
+              <p className="text-xs font-bold text-neutral-500 uppercase tracking-widest mt-1">
                 dépensés ce mois-ci
               </p>
             </div>
 
             {added > 0 && (
-              <div className="text-center text-sm font-medium">
+              <div className="text-center text-xs font-medium">
                 <p className="text-emerald-600 dark:text-emerald-400">
                   + {formatCurrency(added)} ajoutés
                 </p>
               </div>
             )}
 
-            <div className="text-xs font-medium text-center text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/30 p-4 rounded-xl leading-relaxed">
-              Cette catégorie sert uniquement à suivre vos flux sans limite définie.
+            <div className="text-[10px] font-medium text-center text-neutral-500 dark:text-neutral-400 bg-neutral-50 dark:bg-neutral-800/30 p-2.5 rounded-lg leading-relaxed">
+              Cette catégorie sert uniquement à suivre vos flux sans limite.
             </div>
 
             <button
               onClick={handleDelete}
-              className="mt-2 flex items-center justify-center gap-2 px-4 cursor-pointer py-3 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-xl text-sm font-bold transition-all"
+              className="mt-1 flex items-center justify-center gap-2 px-3 cursor-pointer py-2 text-red-600 hover:text-white hover:bg-red-600 border border-red-600 rounded-lg text-xs font-bold transition-all"
             >
-              <Trash className="w-4 h-4" />
-              SUPPRIMER LA CATÉGORIE
+              <Trash className="w-3.5 h-3.5" />
+              Supprimer
             </button>
           </div>
         )}

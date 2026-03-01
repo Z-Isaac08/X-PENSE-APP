@@ -92,6 +92,7 @@ export const checkMonthlyTriggers = async (
     const cappedBudgets = budgets.filter(b => b.type === 'capped');
     const savingsBudgets = budgets.filter(b => b.type === 'savings');
     const trackingBudgets = budgets.filter(b => b.type === 'tracking');
+    console.log({ cappedBudgets, savingsBudgets, trackingBudgets });
 
     // Résumé budgets plafonnés (basé sur mois précédent)
     if (cappedBudgets.length > 0) {
@@ -100,15 +101,20 @@ export const checkMonthlyTriggers = async (
           const spent = prevMonthExpenses
             .filter(e => e.budget === budget.id)
             .reduce((sum, e) => sum + e.amount, 0);
-          const percentage = budget.amount ? (spent / budget.amount) * 100 : 0;
+          const added = prevMonthIncomes
+            .filter(i => i.budget === budget.id)
+            .reduce((sum, i) => sum + i.amount, 0);
+          const netSpent = spent - added;
+          const limit = budget.amount || 0;
+          const percentage = limit > 0 ? (netSpent / limit) * 100 : 0;
           const status =
-            percentage > 100 ? '⚠️ Dépassé' : percentage > 90 ? '⚠️ Limite proche' : '✅ Respecté';
-          return `${budget.name}: ${status}`;
+            percentage > 100 ? '⚠️ Dépassé' : percentage > 80 ? '⚠️ Limite proche' : '✅ Respecté';
+          return `${budget.name}: ${status} (${percentage.toFixed(0)}%)`;
         })
         .join(', ');
 
       await addNotifications(userId, {
-        message: `📊 Budgets plafonnés (${prevMonthName}) - ${budgetSummary}`,
+        message: `📊 Bilan des plafonds (${prevMonthName}) : ${budgetSummary}`,
         type: 'alert',
         date: now.toISOString(),
         read: false,
@@ -117,7 +123,7 @@ export const checkMonthlyTriggers = async (
 
     // Résumé budgets épargne (basé sur mois précédent)
     if (savingsBudgets.length > 0) {
-      savingsBudgets.forEach(async budget => {
+      for (const budget of savingsBudgets) {
         const savedIncomes = prevMonthIncomes
           .filter(i => i.budget === budget.id)
           .reduce((sum, i) => sum + i.amount, 0);
@@ -133,18 +139,18 @@ export const checkMonthlyTriggers = async (
             : `💰 ${formatCurrency(netSaved)} épargnés sur ${formatCurrency(goal)} (${percentage.toFixed(0)}%)`;
 
         await addNotifications(userId, {
-          message: `🏦 Épargne "${budget.name}" (${prevMonthName}) : ${status}`,
+          message: `🏦 Épargne ${prevMonthName} • ${budget.name} : ${status}`,
           type: 'income',
           date: now.toISOString(),
           read: false,
         });
-      });
+      }
     }
 
     // Résumé catégories de suivi avec tendances (basé sur mois précédent)
     if (trackingBudgets.length > 0) {
-      trackingBudgets.forEach(async budget => {
-        const trend = calculateTrackingTrend(budget.id, expenses);
+      for (const budget of trackingBudgets) {
+        const trend = calculateTrackingTrend(budget.id, expenses, prevMonth, prevYear);
         if (trend.currentMonth > 0) {
           const trendText =
             trend.trend === 'up'
@@ -153,13 +159,13 @@ export const checkMonthlyTriggers = async (
                 ? '📉 en baisse'
                 : '➡️ stable';
           await addNotifications(userId, {
-            message: `📝 ${budget.name}: ${trend.currentMonth.toLocaleString()} FCFA (${prevMonthName}) (${trendText})`,
+            message: `📝 Suivi ${prevMonthName} • ${budget.name} : ${trend.currentMonth.toLocaleString()} FCFA (${trendText})`,
             type: 'expense',
             date: now.toISOString(),
             read: false,
           });
         }
-      });
+      }
     }
 
     // Notif rapport disponible
