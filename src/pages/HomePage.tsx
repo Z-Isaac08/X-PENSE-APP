@@ -1,6 +1,6 @@
 import { AnimatePresence, motion } from 'framer-motion';
 import { ArrowRight, ChevronUp, Info, Plus, Settings } from 'lucide-react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router';
 import BudgetForm from '../components/budgetForm/budgetForm';
 import ExpenseForm from '../components/expenseForm/ExpenseForm';
@@ -41,26 +41,31 @@ const HomePage = () => {
     .filter(tx => tx.type === 'income')
     .map(({ type, ...income }) => income);
 
-  const displayBudgets = (() => {
+  const displayBudgets = useMemo(() => {
+    if (!budgets || budgets.length === 0) return [];
+
     const sorted = [...budgets].sort((a, b) =>
       (b.createdAt || '').localeCompare(a.createdAt || '')
     );
     const top3: typeof budgets = [];
     const types = ['capped', 'savings', 'tracking'] as const;
 
+    // 1. Prendre la plus récente de chaque type disponible
     types.forEach(type => {
       const found = sorted.find(b => b.type === type);
       if (found) top3.push(found);
     });
 
+    // 2. Si on n'a pas encore 3, remplir avec les plus récentes restantes (indépendamment du type)
     sorted.forEach(b => {
       if (top3.length < 3 && !top3.some(existing => existing.id === b.id)) {
         top3.push(b);
       }
     });
 
+    // 3. Trier le résultat final par date décroissante
     return top3.sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''));
-  })();
+  }, [budgets]);
 
   const isRunningCheck = useRef(false);
 
@@ -198,7 +203,7 @@ const HomePage = () => {
               </Link>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-              {displayBudgets.map((budget, index) => {
+              {displayBudgets.map((budget: any, index: number) => {
                 const spent = getExpenseBudget(budget.id);
                 const added = getIncomeBudget(budget.id);
 

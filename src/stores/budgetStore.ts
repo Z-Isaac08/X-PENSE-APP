@@ -48,8 +48,14 @@ export const useBudgetStore = create<BudgetStore>((set, get) => ({
 
       const docRef = await addDoc(budgetsRef, budgetData);
 
+      const newBudget: BudgetInterface = {
+        ...budget,
+        id: docRef.id,
+        createdAt: budgetData.createdAt,
+      };
+
       set(state => ({
-        budgets: [...state.budgets, { ...budget, id: docRef.id }],
+        budgets: [...state.budgets, newBudget],
       }));
     } catch (error) {
       console.error("Erreur lors de l'ajout du budget:", error);
