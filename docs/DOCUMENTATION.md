@@ -160,7 +160,7 @@ git push
 2. **docs/SETUP.md** - Installation locale
 3. **docs/GUIDE_DEPLOIEMENT.md** - Déploiement
 4. **docs/AUDIT_COMPLET.md** - Qualité du code
-5. **docs/DOCUMENTATION.md** - Ce fichier
+5. **docs/AGENT_IA_ARCHITECTURE.md** - Architecture IA
 
 ---
 

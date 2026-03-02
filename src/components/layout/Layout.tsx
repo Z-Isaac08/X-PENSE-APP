@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router';
 import { useBudgetStore } from '../../stores/budgetStore';
 import { useExpenseStore } from '../../stores/expenseStore';
 import { useIncomeStore } from '../../stores/incomeStore';
@@ -13,8 +14,11 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { getAllExpenses } = useExpenseStore();
   const { getAllIncomes } = useIncomeStore();
   const { AllNotifications } = useNotificationStore();
+  const location = useLocation();
 
-  const [loading, setLoading] = useState(user !== null); // chargement uniquement si user est présent
+  const isLandingPage = location.pathname === '/';
+
+  const [loading, setLoading] = useState(user !== null && !isLandingPage);
 
   useEffect(() => {
     const loadData = async () => {
@@ -44,9 +48,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <section className="flex flex-col min-h-screen">
-      <NavBar />
+      {!isLandingPage && <NavBar />}
       <main className="flex-grow h-full">{children}</main>
-      <Footer />
+      {!isLandingPage && <Footer />}
     </section>
   );
 };

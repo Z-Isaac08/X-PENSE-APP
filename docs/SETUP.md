@@ -181,7 +181,7 @@ npm run build
 - **docs/** : Documentation complète
   - `AGENT_IA_ARCHITECTURE.md` : Architecture de l'agent IA
   - `GUIDE_DEPLOIEMENT.md` : Guide de déploiement
-  - `PARTAGE_SECURISE.md` : Partage sécurisé
+  - `AUDIT_COMPLET.md` : Audit complet du projet
 
 ---
 

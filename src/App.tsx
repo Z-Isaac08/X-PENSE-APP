@@ -23,6 +23,7 @@ const NotificationPage = lazy(() => import('./pages/NotificationPage'));
 const TransactionPage = lazy(() => import('./pages/TransactionPage'));
 const ChatBotPage = lazy(() => import('./pages/ChatBotPage'));
 const CategoriesPage = lazy(() => import('./pages/CategoriesPage'));
+const LandingPage = lazy(() => import('./pages/LandingPage'));
 const App = () => {
   const { user, loading, initialized, initializeAuth } = useAuthStore();
   const { isDarkMode } = useThemeStore();
@@ -60,10 +61,7 @@ const App = () => {
           <Layout>
             <ScrollToTop />
             <Routes>
-              <Route
-                path="/"
-                element={user ? <Navigate to="/h" replace /> : <Navigate to="/login" replace />}
-              />
+              <Route path="/" element={user ? <Navigate to="/h" replace /> : <LandingPage />} />
               <Route path="/login" element={user ? <Navigate to="/h" /> : <LoginPage />} />
               <Route path="/register" element={user ? <Navigate to="/h" /> : <RegisterPage />} />
               <Route

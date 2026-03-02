@@ -1,220 +1,96 @@
-# 💰 Xpense - Gestionnaire Financier Intelligent
+# 🚀 X-PENSE - Reprenez le contrôle de demain
 
-> Application React de gestion budgétaire avec assistant IA pour un suivi financier simplifié.
+[![React](https://img.shields.io/badge/React-19-blue.svg)](https://react.dev/)
+[![Vite](https://img.shields.io/badge/Vite-6-purple.svg)](https://vitejs.dev/)
+[![Firebase](https://img.shields.io/badge/Firebase-11-orange.svg)](https://firebase.google.com/)
+[![Tailwind](https://img.shields.io/badge/Tailwind-4-38B2AC.svg)](https://tailwindcss.com/)
+[![License](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
 
-[![React](https://img.shields.io/badge/React-19.1.0-61DAFB?logo=react)](https://reactjs.org/)
-[![TypeScript](https://img.shields.io/badge/TypeScript-5.8.3-3178C6?logo=typescript)](https://www.typescriptlang.org/)
-[![Vite](https://img.shields.io/badge/Vite-6.3.5-646CFF?logo=vite)](https://vitejs.dev/)
-[![Firebase](https://img.shields.io/badge/Firebase-11.8.1-FFCA28?logo=firebase)](https://firebase.google.com/)
+> **"Parce que gérer son argent ne devrait pas être une source d'anxiété, mais un pas vers la liberté."**
 
-## 🎯 Vue d'ensemble
+X-Pense est une application de gestion financière personnelle intelligente conçue pour transformer votre relation avec l'argent. Oubliez les tableaux complexes et le stress des fins de mois ; X-Pense utilise le storytelling et l'IA pour vous offrir une clarté totale et des conseils actionnables.
 
-**Xpense** est une SPA React + Vite + TypeScript permettant de gérer budgets, dépenses et revenus avec un assistant IA conversationnel alimenté par Groq (Llama 3.3 70B) via backend proxy sécurisé.
+---
 
-### Points forts
+## ✨ Points Forts
 
-- 💳 **Budgets flexibles** : mode plafonné (avec alertes) ou suivi (sans limite)
-- 🤖 **Coach IA** : conseils personnalisés basés sur vos données réelles
-- 📊 **Dashboard analytique** : graphiques Recharts interactifs
-- 🔔 **Notifications intelligentes** : alertes proactives et insights automatiques
-- 📄 **Export PDF** : rapports mensuels avec jsPDF
+- 🤖 **Assistant IA Financier** : Un coach personnel (Groq Llama 3.3) qui analyse vos dépenses, répond à vos questions et exécute des actions pour vous.
+- 🎯 **Gestion par Enveloppes** : Trois types de budgets pour une maîtrise parfaite :
+  - **Plafonné** : Pour ne jamais dépasser vos limites (Courses, Loisirs).
+  - **Suivi** : Pour observer vos dépenses régulières sans stresser (Loyer, Abonnements).
+  - **Épargne** : Pour transformer vos économies en victoires.
+- 🔔 **Notifications Intelligentes** : Alertes de seuils (80%, 90%), tendances mensuelles et résumés périodiques automatisés.
+- 📊 **Dashboard Dynamique** : Visualisez votre santé financière en un coup d'œil avec des graphiques clairs et un export PDF professionnel.
+- 🌓 **Interface Premium** : Design moderne, fluide et responsive avec mode sombre et clair élégant.
 
-## ✨ Fonctionnalités
+---
 
-### 1. Gestion budgétaire double mode
+## 🛠️ Stack Technique
 
-**Budget Plafonné**
+- **Frontend** : React 19, TypeScript, Vite 6
+- **Style & Animation** : Tailwind CSS v4, Framer Motion, Lucide React
+- **State Management** : Zustand
+- **Backend & DB** : Firebase (Auth & Firestore)
+- **Intelligence Artificielle** : Groq SDK (Llama 3.3 70B)
+- **Déploiement** : Vercel (avec Backend Proxy pour la sécurité des clés API)
 
-- Montant max défini (ex: Restaurants 200 FCFA/mois)
-- Alertes aux seuils 80%, 90%, 100%
-- Barre de progression colorée
+---
 
-**Catégorie de Suivi**
+## 🚀 Démarrage Rapide
 
-- Pas de limite (ex: Achats en ligne)
-- Comparaison mensuelle automatique
-- Détection de tendances
-
-### 2. Assistant IA conversationnel
-
-**Capacités** :
-
-- Questions : _"Combien j'ai dépensé en restaurants ?"_
-- Analyses : _"Comment vont mes finances ce mois ?"_
-- Conseils : _"Comment économiser 200 FCFA par mois ?"_
-- Prédictions : _"À ce rythme, combien j'aurai dépensé ?"_
-- Actions : _"Crée un budget loisirs de 100 FCFA"_
-
-**Architecture** :
-
-```
-User Message → Intent Detection → Context Builder
-    ↓
-Backend Proxy (/api/chat) → Groq API (Llama 3.3 70B)
-    ↓
-Response Processing → Action Execution → Display
-```
-
-**Sécurité** : Clé API Groq cachée côté serveur, rate limiting 30 req/h par IP
-
-### 3. Autres fonctionnalités
-
-- Suivi dépenses/revenus avec catégorisation
-- Dashboard avec graphiques (évolution, tendances, répartition)
-- Système de notifications (dépassements, rappels, insights)
-- Export PDF mensuel
-
-## 🚀 Installation rapide
+### 1. Installation
 
 ```bash
-# Clone
+# Cloner le projet
 git clone https://github.com/Z-Isaac08/X-PENSE-APP.git
 cd X-PENSE-APP
 
-# Install
+# Installer les dépendances
 npm install
+```
 
-# Configure les variables d'environnement
+### 2. Configuration
+
+Copiez le fichier `.env.example` en `.env` et remplissez vos clés Firebase et Groq :
+
+```bash
 cp .env.example .env
-# Éditer .env avec vos clés (Firebase, Groq)
+```
 
-# Run (avec backend proxy)
+### 3. Lancement
+
+Pour bénéficier du proxy backend (nécessaire pour l'IA) :
+
+```bash
+# Avec Vercel CLI (recommandé)
 vercel dev
-# OU (frontend uniquement)
+
+# Ou avec Vite (IA limitée sans proxy local)
 npm run dev
 ```
 
-📖 **Guide complet** : Voir [docs/SETUP.md](docs/SETUP.md)
+---
 
-### Configuration
+## 📚 Documentation Détaillée
 
-**Variables d'environnement** : Copier `.env.example` → `.env` et remplir :
-- **Firebase** : Credentials depuis Firebase Console
-- **Groq API** : Clé depuis https://console.groq.com/keys
+Pour aller plus loin, consultez les guides dans le dossier `/docs` :
 
-⚠️ **Important** : Le fichier `.env` ne doit jamais être commit (déjà dans `.gitignore`)
+1. ⚙️ [**Guide d'Installation (SETUP.md)**](docs/SETUP.md) : Prérequis et configuration détaillée de Firebase/Groq.
+2. 🚀 [**Guide de Déploiement (GUIDE_DEPLOIEMENT.md)**](docs/GUIDE_DEPLOIEMENT.md) : Comment mettre votre app en ligne sur Vercel, Netlify ou Firebase.
+3. 🤖 [**Architecture de l'IA (AGENT_IA_ARCHITECTURE.md)**](docs/AGENT_IA_ARCHITECTURE.md) : Tout sur le fonctionnement du cerveau de X-Pense.
+4. 🔍 [**Audit Projet (AUDIT_COMPLET.md)**](docs/AUDIT_COMPLET.md) : Analyse technique, sécurité et statut des fonctionnalités.
+5. 📖 [**Index Documentation (DOCUMENTATION.md)**](docs/DOCUMENTATION.md) : Sommaire de toutes les ressources disponibles.
 
-## 📁 Structure
-
-```
-.
-├── api/                # Backend Serverless (Vercel)
-│   └── chat.js        # Proxy sécurisé Groq API
-├── src/
-│   ├── components/    # Composants UI
-│   ├── pages/         # Pages principales
-│   ├── stores/        # Zustand stores
-│   ├── services/
-│   │   ├── agent/     # Agent IA (orchestrateur, détecteur, etc.)
-│   │   └── analytics/ # Analyses financières
-│   ├── config/        # Configuration (Firebase, Agent)
-│   ├── types/         # Types TypeScript
-│   └── utils/         # Utilitaires
-├── vercel.json        # Config Vercel + env vars
-└── package.json
-```
-
-## 🛠️ Stack technique
-
-| Catégorie | Technologies |
-|-- | |
-| **Core** | React 19.1.0, TypeScript 5.8.3, Vite 6.3.5 |
-| **State** | Zustand 5 |
-| **Routing** | React Router 7 |
-| **UI/CSS** | Tailwind CSS 3, Lucide React |
-| **Charts** | Recharts 2 |
-| **Backend** | Firebase 11.8.1 (Firestore), Vercel Serverless |
-| **AI** | Groq Cloud (Llama 3.3 70B) via Backend Proxy |
-| **PDF** | jsPDF 2.5 |
-
-## 🤖 Agent IA
-
-### Modules
-
-1. **Context Builder** : Agrège données financières (budgets, dépenses, revenus, comparaisons)
-2. **Intent Detector** : Classifie l'intention (query, analysis, advice, prediction, action)
-3. **Backend Proxy** : Endpoint sécurisé `/api/chat` avec rate limiting (30 req/h/IP)
-4. **Groq Client** : Appel backend proxy → Groq API (Llama 3.3 70B)
-5. **Orchestrator** : Coordonne le flux (intent → context → backend → action)
-6. **Action Executor** : Exécute actions via stores (créer budget, ajouter dépense, etc.)
-
-### Prompts système
-
-- Rôle : Assistant financier personnel bienveillant
-- Règles : Baser réponses sur données réelles, ton amical, solutions actionnables
-- Format : Structuré avec emojis, comparaisons contextuelles
-
-## 📜 Scripts
-
-```bash
-npm run dev       # Serveur dev (localhost:5173)
-npm run build     # Build production
-npm run preview   # Preview build
-npm run lint      # ESLint
-```
-
-## 🚀 Déploiement
-
-### Vercel (Recommandé)
-
-```bash
-# 1. Push sur GitHub
-git add .
-git commit -m "feat: app complete"
-git push
-
-# 2. Importer sur Vercel
-# - Aller sur vercel.com
-# - Import GitHub repo
-# - Deploy
-
-# 3. Configurer Firebase
-# - Ajouter domaine Vercel dans Firebase Auth
-```
-
-### Test Local du Backend Proxy
-
-```bash
-# Terminal 1: Frontend
-npm run dev
-
-# Terminal 2: Backend (si test local)
-vercel dev
-# Ou utiliser directement /api/chat en prod
-```
-
-## 🗃️ Stores Zustand
-
-| Store               | Responsabilité | Actions clés                                          |
-| ------------------- | -------------- | ----------------------------------------------------- |
-| `budgetStore`       | Budgets        | `getAllBudgets`, `addBudget`, `updateBudgetSpent`     |
-| `expenseStore`      | Dépenses       | `addExpense` (+ trigger check), `batchDeleteExpenses` |
-| `incomeStore`       | Revenus        | `addIncome`, `getAllIncomes`                          |
-| `notificationStore` | Notifications  | `AllNotifications`, `markAsRead`                      |
-| `chatStore`         | Chat IA        | `sendMessage`, `confirmAction`                        |
-| `dashboardStore`    | Métriques      | `calculateMetrics`, `getMonthlyTrends`                |
-| `themeStore`        | Thème          | `toggleTheme`                                         |
-
-## 📊 Architecture données (Firestore)
-
-```
-Collections:
-├── budgets/        # {name, type: 'capped'|'tracking', amount?, spent, ...}
-├── expenses/       # {amount, category, budgetId, date, ...}
-├── incomes/        # {amount, source, date, ...}
-└── notifications/  # {type, title, message, read, ...}
-```
+---
 
 ## 🤝 Contribution
 
-1. Fork le projet
-2. Créer une branche (`git checkout -b feature/Feature`)
-3. Commit (`git commit -m 'Add Feature'`)
-4. Push (`git push origin feature/Feature`)
-5. Ouvrir une Pull Request
+Les contributions sont les bienvenues ! N'hésitez pas à ouvrir une issue ou une pull request pour suggérer des améliorations.
 
 ## 📝 Licence
 
-MIT License - Voir `LICENSE`
+Ce projet est sous licence MIT. Voir le fichier [LICENSE](LICENSE) pour plus de détails.
 
-**Fait avec ❤️ par Isaac N'CHO**
+---
+
+**Développé avec ❤️ pour une meilleure santé financière.**
