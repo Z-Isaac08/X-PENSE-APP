@@ -378,7 +378,7 @@ const LandingPage = () => {
           </div>
 
           <p className="text-sm text-neutral-500">
-            © {new Date().getFullYear()} Isaac N'cho. Conçu pour demain.
+            © {new Date().getFullYear()} Xpense. Tous droits réservés.
           </p>
         </div>
       </footer>
