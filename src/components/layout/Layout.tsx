@@ -16,9 +16,10 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
   const { AllNotifications } = useNotificationStore();
   const location = useLocation();
 
-  const isLandingPage = location.pathname === '/';
+  const noLayoutRoutes = ['/', '/login', '/register', '/forgot-password'];
+  const isNoLayout = noLayoutRoutes.includes(location.pathname);
 
-  const [loading, setLoading] = useState(user !== null && !isLandingPage);
+  const [loading, setLoading] = useState(user !== null && !isNoLayout);
 
   useEffect(() => {
     const loadData = async () => {
@@ -48,9 +49,9 @@ const Layout = ({ children }: { children: React.ReactNode }) => {
 
   return (
     <section className="flex flex-col min-h-screen">
-      {!isLandingPage && <NavBar />}
+      {!isNoLayout && <NavBar />}
       <main className="flex-grow h-full">{children}</main>
-      {!isLandingPage && <Footer />}
+      {!isNoLayout && <Footer />}
     </section>
   );
 };
