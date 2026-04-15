@@ -14,7 +14,7 @@ export default defineConfig({
     tailwindcss(),
     VitePWA({
       registerType: "autoUpdate",
-      includeAssets: ["favicon.ico", "apple-touch-icon-180x180.png", "masked-icon.svg"],
+      includeAssets: ["favicon.ico", "apple-touch-icon-180x180.png", "vite.svg"],
       manifest: {
         name: "X-Pense App",
         short_name: "XPense",

@@ -15,6 +15,7 @@ npm install -D vite-plugin-pwa
 ## Étape 2 : Ajout des icônes dans `public/`
 
 Une PWA nécessite des icônes spécifiques pour s'afficher correctement sur les différents appareils (Android, iOS, Windows...). Vous devrez créer et placer les fichiers suivants dans le dossier `public/` du projet :
+
 - `pwa-192x192.png`
 - `pwa-512x512.png`
 - `pwa-512x512-maskable.png` (pour que l'icône s'adapte aux formes du système sur Android)
@@ -26,13 +27,13 @@ Importez et ajoutez le plugin `VitePWA` dans le tableau des plugins de votre fic
 
 ```typescript
 import { VitePWA } from 'vite-plugin-pwa';
-import tailwindcss from "@tailwindcss/vite";
-import react from "@vitejs/plugin-react";
-import { defineConfig } from "vite";
+import tailwindcss from '@tailwindcss/vite';
+import react from '@vitejs/plugin-react';
+import { defineConfig } from 'vite';
 
 export default defineConfig({
   server: {
-    host: "0.0.0.0",
+    host: '0.0.0.0',
     port: 5173,
   },
   plugins: [
@@ -52,23 +53,23 @@ export default defineConfig({
           {
             src: 'pwa-192x192.png',
             sizes: '192x192',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'pwa-512x512.png',
             sizes: '512x512',
-            type: 'image/png'
+            type: 'image/png',
           },
           {
             src: 'pwa-512x512-maskable.png',
             sizes: '512x512',
             type: 'image/png',
-            purpose: 'any maskable'
-          }
-        ]
-      }
-    })
-  ]
+            purpose: 'any maskable',
+          },
+        ],
+      },
+    }),
+  ],
 });
 ```
 
@@ -77,8 +78,8 @@ export default defineConfig({
 Il faut ajouter quelques balises `<meta>` et `<link>` dans le pavé `<head>` de votre fichier `index.html` pour renforcer l'intégration mobile :
 
 ```html
-<meta name="theme-color" content="#0f172a">
-<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<meta name="theme-color" content="#0f172a" />
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
 ```
 
 ## Étape 5 : Gérer l'état de la mise à jour (Optionnel)
